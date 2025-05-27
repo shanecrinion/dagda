@@ -2,7 +2,7 @@
 % Please edit documentation in R/strsplit1.R
 \name{strsplit1}
 \alias{strsplit1}
-\title{Title}
+\title{Split a string}
 \usage{
 strsplit1(x, split)
 }
@@ -15,7 +15,7 @@ strsplit1(x, split)
 A character vector
 }
 \description{
-Title
+Split a string
 }
 \examples{
 x <- "alfa,bravo,charlie,delta"
