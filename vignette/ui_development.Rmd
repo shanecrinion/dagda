@@ -1,0 +1,50 @@
+---
+title: "Teanglann Search"
+output: html_document
+---
+
+## Cuardach Comhchoiteann
+
+<p><strong>Word:</strong>
+<input type="text" id="searchWordUnified" placeholder="Enter a word here"></p>
+
+<p><strong>Select dictionary:</strong>
+<select id="dictionaryChoice">
+  <option value="teanglann-ga">Teanglann (Irish → English)</option>
+  <option value="focloir-ei">Foclóir.ie (English → Irish, 2013)</option>
+  <option value="teanglann-ei">Teanglann (English → Irish, 1959)</option>
+</select></p>
+
+<button onclick="searchUnified()">Search</button>
+
+<script>
+  function searchUnified() {
+    var word = document.getElementById("searchWordUnified").value.trim();
+    var dict = document.getElementById("dictionaryChoice").value;
+
+    if (word === "") {
+      alert("Please enter a word.");
+      return;
+    }
+
+    let url;
+    switch (dict) {
+      case "teanglann-ga":
+        url = "https://www.teanglann.ie/ga/" + encodeURIComponent(word);
+        break;
+      case "focloir-ei":
+        url = "https://www.focloir.ie/en/dictionary/ei/" + encodeURIComponent(word);
+        break;
+      case "teanglann-ei":
+        url = "https://www.teanglann.ie/en/eid/" + encodeURIComponent(word);
+        break;
+      default:
+        alert("Invalid dictionary selection.");
+        return;
+    }
+
+    window.open(url, "_blank");
+  }
+</script>
+
+<iframe style="width: 200px; height: 250px; border: 1px solid rgb(69,89,161);" frameborder="0" scrolling="no" src="https://www.teanglann.ie/en/searchboxT/"></iframe>
