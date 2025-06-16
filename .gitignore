@@ -1,1 +1,16 @@
-GaelLearnR.Rproj.user
+.Rhistory
+GaelLearnR.Rproj
+.Rproj.user/
+inst/extdata/25.04.01-tearma.ie-concepts.tbx.zip
+inst/extdata/anki_cleanHTML.csv 
+inst/extdata/anki.csv
+inst/extdata/cng.fasttext.vec
+inst/extdata/cng-meaning.kv
+inst/extdata/cng-morphology.kv
+inst/extdata/cng-word2vec.vec
+inst/extdata/full_terminology_table.csv
+inst/extdata/pos.tsv
+inst/extdata/cng-toklempos.tsv
+inst/extdata/Cpla_Mle_Focal_extracted
+inst/extdata/Cpla_Mle_Focal.apkg
+inst/extdata/cng-fasttext.vec
