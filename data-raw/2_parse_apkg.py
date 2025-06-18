@@ -6,7 +6,7 @@ from typing import List, Optional
 import csv
 
 # Parse the apkg file
-os.chdir('/home/shane/Desktop/files/current-projects/gaelLearnR/GaelLearnR/')
+os.chdir('/home/shane/Desktop/files/current-projects/dagda')
 
 ## Below - uncomment to unzip and extract the SQL database
 # apkg_path = 'inst/extdata/Cpla_Mle_Focal.apkg'

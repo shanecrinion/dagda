@@ -3,7 +3,7 @@ import pandas as pd
 import time
 
 # Parse the XML file
-os.chdir('/home/shane/Desktop/files/current-projects/gaelLearnR/')
+os.chdir('/home/shane/Desktop/files/current-projects/dagda')
 
 tree = ET.parse('inst/extdata/25.04.01-tearma.ie-concepts.tbx')
 root= tree.getroot()

@@ -1,13 +1,21 @@
-Package: GaelLearnR
-Title: Improves Irish for all learners
+Package: Dagda
+Title: Platform for learning Irish. 
 Version: 0.0.0.9000
 Authors@R: 
     person("Shane", "Crinion", , "shanecrinion@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0002-7749-4566"))
-Description: Application to assist in learning all aspects of Irish.
+Description: Eolas/About: Application to assist in learning all aspects of Irish.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
-	data.table (>= 1.9.4)
+    cli,
+    here,
+    optparse
+Depends: 
+    R (>= 2.10)
+LazyData: true
+LazyDataCompression: xz
+URL: https://github.com/shanecrinion/Dagda
+BugReports: https://github.com/shanecrinion/Dagda/issues

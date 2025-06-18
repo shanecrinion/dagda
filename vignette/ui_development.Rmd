@@ -1,7 +1,66 @@
 ---
-title: "Teanglann Search"
+title: "Dagda"
 output: html_document
 ---
+
+```{r}
+# --- Wish list
+# integrate font from https://www.gaelchlo.com/suitlinux.html
+# Report card - you got x percent, you need to work on y
+# Resource for fadas
+# Events
+# Grammar Terminology
+# chat bot, tell me everything you know about x word
+# pick your activities for the day - give vocab for those
+# Living in Ireland / going around Ireland (irish signs and place names)
+# irish genetics facts
+# Information on the types of words (e.g. verbal noun) and their name in irish and english
+# irish history facts
+# resources
+# phrases i've found/heard on social media / using your phone as gaeilge
+# license and acknowledgments
+# put in a feature where someone picks an area on the map and I extract the name of towns in the area - i look for all towns in that area and then I tell you what the irish says about the landscape
+# #dbWriteTable(con, "words", combined) - for faster running make an SQL database
+```
+
+Let's import some data we've processed:
+
+```{r}
+library(here)
+word_data <- list(
+  terminology = readRDS(here('data', 'tearma.rda')),
+  frequency = readRDS(here('data', 'corpus.rda')),
+  anki = readRDS(here('data', 'anki.rda')),
+  frequency.guide = readRDS(here('data', 'corpus.pos.rda')))
+```
+
+```{r}
+library(reticulate)
+# ---- Load data on similar words based on meaning and morphology 
+source('/home/shane/Desktop/files/current-projects/dagda/R/load_vectors.R')
+similar = load_vectors()
+```
+
+Let's start with the top 500 terms from Anki
+
+```{r}
+library(dplyr)
+test_data <- head(word_data$anki, 100)
+test_data = merge(test_data, word_data$frequency, by.x='ga', by.y='word_form')
+```
+
+Now we will explore how to clean this up
+
+```{r}
+test_data <- test_data[order(as.integer(test_data$rank)),
+            c('ga','en', 'lemma', 'rank',
+              'pos','part_of_speech', 'gender','genitiveVN')]
+```
+
+```{r}
+
+```
+
 
 ## Cuardach Comhchoiteann
 
@@ -10,7 +69,7 @@ output: html_document
 
 <p><strong>Select dictionary:</strong>
 <select id="dictionaryChoice">
-  <option value="teanglann-ga">Teanglann (Irish → English)</option>
+  <option value="teanglann-ga">Teanglann (Irish → English, 1977)</option>
   <option value="focloir-ei">Foclóir.ie (English → Irish, 2013)</option>
   <option value="teanglann-ei">Teanglann (English → Irish, 1959)</option>
 </select></p>
@@ -30,7 +89,7 @@ output: html_document
     let url;
     switch (dict) {
       case "teanglann-ga":
-        url = "https://www.teanglann.ie/ga/" + encodeURIComponent(word);
+        url = "https://www.teanglann.ie/en/fgb/" + encodeURIComponent(word);
         break;
       case "focloir-ei":
         url = "https://www.focloir.ie/en/dictionary/ei/" + encodeURIComponent(word);
@@ -47,4 +106,14 @@ output: html_document
   }
 </script>
 
-<iframe style="width: 200px; height: 250px; border: 1px solid rgb(69,89,161);" frameborder="0" scrolling="no" src="https://www.teanglann.ie/en/searchboxT/"></iframe>
+
+<!-- Include jQuery and Teanglann's An Foclóirí plugin -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://www.teanglann.ie/cab/cab.js"></script>
+<script>
+  jQuery(document).ready(function(){
+    cab.clickify(); // Apply to entire page
+  });
+</script>
+
+
