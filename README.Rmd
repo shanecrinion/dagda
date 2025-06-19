@@ -1,4 +1,4 @@
 ---
-title: "Dagda"
+title: "dagda"
 output: github_document
 ---

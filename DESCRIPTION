@@ -1,4 +1,4 @@
-Package: Dagda
+Package: dagda
 Title: Platform for learning Irish. 
 Version: 0.0.0.9000
 Authors@R: 
@@ -11,10 +11,12 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
     cli,
+    dplyr,
     here,
-    optparse
+    shiny,
+    tibble
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
 LazyData: true
 LazyDataCompression: xz
 URL: https://github.com/shanecrinion/dagda
