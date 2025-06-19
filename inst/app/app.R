@@ -1,272 +1,204 @@
 library(shiny)
 library(dplyr)
+library(tibble)
+library(here)
 
+load(here::here('data', 'test_data_clean.Rdata'))
+
+filterable_columns <- c("part_of_speech", "gender")
 source(here::here('R', 'quiz_cli.R'))
 
 ui <- fluidPage(
-
-  tags$script(HTML("
-  $(document).on('keypress', function(e) {
-    if(e.which == 13) {
-      $('#submit_username').click();
-    }
-  });"
-  )),
   titlePanel("Irish Vocabulary Quiz"),
+  sidebarLayout(
+    sidebarPanel(
+      textInput("username", "Enter Username:", value = ""),
+      actionButton("save_user", "Enter Username"),
+      numericInput("n_questions", "Number of Questions", value = 10, min = 1),
+      textInput("dialect", "Dialect Filter (optional):"),
 
-  # 1. Username input + submit button
-  textInput("username", "Enter your username:", ""),
-  actionButton("submit_user", "Enter"),
-  hr(),
+      radioButtons("rank_mode", "Choose Rank Input Mode:",
+                   choices = c("Set Value" = "single", "Value Range" = "range"),
+                   selected = "single", inline = TRUE),
 
-  # 2. Conditional quiz setup inputs shown after username submitted
-  uiOutput("quiz_setup_ui"),
+      conditionalPanel(
+        condition = "input.rank_mode == 'single'",
+        sliderInput("rank_value", "Select Max Rank Value:",
+                    min = 1, max = 7500, value = 100, step = 5)
+      ),
 
-  # 3. Quiz UI shown after quiz started
-  uiOutput("quiz_ui"),
+      conditionalPanel(
+        condition = "input.rank_mode == 'range'",
+        sliderInput("rank_range", "Select Rank Range:",
+                    min = 1, max = 1000, value = c(1, 100), step = 10)
+      ),
 
-  # Notification
-  verbatimTextOutput("quiz_feedback")
+      uiOutput("dynamic_filters"),
+      actionButton("start_quiz", "Start Quiz"),
+      hr(),
+      verbatimTextOutput("quiz_status")
+    ),
+    mainPanel(
+      uiOutput("question_ui"),
+      uiOutput("feedback_ui")
+    )
+  )
 )
 
 server <- function(input, output, session) {
-  # Wordbank example (replace with your real data)
-  wordbank <- tibble(
-    ga = c("focal", "leabhar", "bád"),
-    en = c("word", "book", "boat"),
-    genitiveVN = c("focail", "leabhair", "báid"),
-    rank = c(10, 20, 5),
-    excluded = c(FALSE, FALSE, FALSE)
-  )
 
-  # Reactive values to store user session info and quiz state
-  user_data <- reactiveValues(
-    username = NULL,
-    score_file = NULL,
+  state <- reactiveValues(
     word_scores = NULL,
-    quiz_data = NULL,
-    current_question = 0,
-    max_questions = 10,
-    column_filters = list(),
-    dialect_filter = NULL,
-    rank_limit = NULL,
-    quiz_active = FALSE,
-    feedback = ""
+    score_file = NULL,
+    username = NULL
   )
 
-  # Load or create user scores on username submit
-  observeEvent(input$submit_user, {
+  wordbank <- test_data.clean
+
+  quiz <- reactiveValues(
+    session = NULL,
+    quiz_data = NULL,
+    current_index = 1,
+    feedback = "",
+    complete = FALSE
+  )
+
+  observeEvent(input$save_user, {
     req(input$username)
-    user_data$username <- input$username
-
-    save_dir <- "user_data"
-    if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
-    user_data$score_file <- file.path(save_dir, paste0("word_scores_", user_data$username, ".rds"))
-
-    if (file.exists(user_data$score_file)) {
-      user_data$word_scores <- readRDS(user_data$score_file)
-      user_data$feedback <- paste0("Welcome back, ", user_data$username, "!")
-    } else {
-      user_data$word_scores <- wordbank %>%
-        mutate(
-          seen_count = 0,
-          correct_count = 0,
-          score = 0,
-          last_seen = as.POSIXct(NA),
-          override_history = "",
-          skipped_count = 0,
-          excluded = FALSE
-        )
-      user_data$feedback <- paste0("Starting new session for ", user_data$username)
-    }
-
-    user_data$quiz_active <- FALSE
-    user_data$current_question <- 0
+    session_data <- load_user_scores(wordbank)
+    state$word_scores <- session_data$word_scores
+    state$score_file <- session_data$score_file
+    state$username <- input$username
+    showNotification(paste("Loaded user data for", input$username), type = "message")
   })
 
-  # Show quiz setup UI after username entered
-  output$quiz_setup_ui <- renderUI({
-    req(user_data$username)
-    if (user_data$quiz_active) return(NULL)
-
-    tagList(
-      h4("Customize your quiz"),
-
-      # Example: Max questions numeric input
-      numericInput("max_questions", "Questions:", value = 10, min = 1, max = 100),
-
-      # Example: Rank limit input (number or percentage string)
-      textInput("rank_limit", "Word overall rank limit (e.g. enter number e.g. 10 of percentage of top Irish words to include):", value = "10"),
-
-      # Example: Dialect filter text input
-      textInput("dialect_filter", "Enter Munster, Commerara or Ulster (beta)"),
-
-      # Column filters: for demo, assume column 'excluded' toggle (could extend)
-      checkboxInput("exclude_words", "Exclude words marked as excluded", value = TRUE),
-
-      actionButton("start_quiz", "Start Quiz")
-    )
+  output$dynamic_filters <- renderUI({
+    req(wordbank)
+    filter_uis <- lapply(filterable_columns, function(col) {
+      choices <- sort(unique(na.omit(wordbank[[col]])))
+      selectInput(
+        inputId = paste0("filter_", col),
+        label = paste("Filter by", col),
+        choices = choices,
+        selected = NULL,
+        multiple = TRUE
+      )
+    })
+    do.call(tagList, filter_uis)
   })
 
-  # When user clicks Start Quiz button
+  output$quiz_status <- renderText({
+    if (quiz$complete) return(quiz$feedback)
+    if (is.null(quiz$quiz_data)) return("Waiting to start quiz...")
+    paste("Question", quiz$current_index, "of", nrow(quiz$quiz_data))
+  })
+
   observeEvent(input$start_quiz, {
-    req(user_data$username)
+    req(state$word_scores)
 
-    # Build filters from inputs
-    col_filters <- list()
-    if (input$exclude_words) {
-      # We want to exclude excluded words, so actually filter excluded == FALSE
-      col_filters$excluded <- FALSE
+    # Handle rank input mode
+    rank_input <- switch(input$rank_mode,
+                         "single" = input$rank_value,
+                         "range" = input$rank_range)
+
+    selected_filters <- list()
+    for (col in filterable_columns) {
+      input_id <- paste0("filter_", col)
+      selected_vals <- input[[input_id]]
+      if (!is.null(selected_vals) && length(selected_vals) > 0) {
+        selected_filters[[col]] <- selected_vals
+      }
     }
 
-    user_data$column_filters <- col_filters
-    user_data$dialect_filter <- input$dialect_filter
-    user_data$rank_limit <- ifelse(nchar(input$rank_limit) == 0, NULL, input$rank_limit)
-    user_data$max_questions <- input$max_questions
+    quiz_data <- filter_words(
+      state$word_scores,
+      column_filters = selected_filters,
+      dialect_filter = input$dialect,
+      rank_limit = rank_input
+    )
 
-    # Filter the word_scores to get quiz_data
-    filtered <- filter_words(user_data$word_scores,
-                             column_filters = user_data$column_filters,
-                             dialect_filter = user_data$dialect_filter,
-                             rank_limit = user_data$rank_limit)
+    quiz_data <- quiz_data %>%
+      filter(!excluded, !is.na(ga), !is.na(en)) %>%
+      distinct(ga, .keep_all = TRUE)
 
-    if (nrow(filtered) == 0) {
-      user_data$feedback <- "No words available after filtering. Adjust your filters."
+    if (nrow(quiz_data) == 0) {
+      quiz$feedback <- "No valid words available after filtering."
+      quiz$complete <- TRUE
       return()
     }
 
-    n_questions <- min(user_data$max_questions, nrow(filtered))
-    user_data$quiz_data <- filtered %>% slice_sample(n = n_questions)
-
-    user_data$current_question <- 1
-    user_data$quiz_active <- TRUE
-    user_data$feedback <- ""
+    n_questions <- min(input$n_questions, nrow(quiz_data))
+    quiz$quiz_data <- quiz_data %>% slice_sample(n = n_questions)
+    quiz$current_index <- 1
+    quiz$complete <- FALSE
+    quiz$feedback <- ""
+    quiz$session <- state
   })
 
-  # Quiz UI - shows current question and input for answer + options
-  output$quiz_ui <- renderUI({
-    req(user_data$quiz_active)
-    qnum <- user_data$current_question
-    total <- nrow(user_data$quiz_data)
-    if (qnum > total) {
-      return(tagList(
-        h3("Quiz complete!"),
-        p("Your progress has been saved."),
-        actionButton("restart", "Restart quiz")
-      ))
-    }
+  output$question_ui <- renderUI({
+    req(quiz$quiz_data, !quiz$complete)
+    if (quiz$current_index > nrow(quiz$quiz_data)) return(NULL)
 
-    current_word <- user_data$quiz_data[qnum, ]
-
+    word <- quiz$quiz_data[quiz$current_index, "ga", drop = TRUE]
     tagList(
-      h4(paste0("Question ", qnum, " of ", total)),
-      strong("Irish word: "), current_word$ga,
-      br(),
-      textInput("answer", "Type the English translation:"),
-      actionButton("submit_answer", "Submit Answer"),
-      br(), br(),
-      radioButtons("post_action", "Options after answer:",
-                   choices = list(
-                     "Continue" = "continue",
-                     "Mark correct" = "mark_correct",
-                     "Exclude word" = "exclude"
-                   ),
-                   selected = "continue"
-      ),
-      br(),
-      verbatimTextOutput("current_feedback")
+      strong("Translate this word from Irish:"),
+      h3(word),
+      textInput("user_answer", "Your Answer:"),
+      actionButton("submit_answer", "Submit Answer")
     )
   })
 
-  # Display feedback after answer submit
-  output$current_feedback <- renderText({
-    user_data$feedback
-  })
-
-  # Process answer submit
   observeEvent(input$submit_answer, {
-    req(user_data$quiz_active)
-    qnum <- user_data$current_question
-    current_word <- user_data$quiz_data[qnum, ]
+    req(quiz$quiz_data, input$user_answer)
 
-    user_answer <- tolower(trimws(input$answer))
+    word_row <- quiz$quiz_data[quiz$current_index, ]
+    answer <- trimws(tolower(input$user_answer))
+    correct <- !is.na(word_row$en) && answer == tolower(word_row$en)
 
-    if (user_answer %in% c("skip", "s", "")) {
-      user_data$feedback <- "Skipped!"
-      # Update skipped count in word_scores
-      idx <- which(user_data$word_scores$ga == current_word$ga)
-      if (length(idx) == 1) {
-        user_data$word_scores$skipped_count[idx] <- user_data$word_scores$skipped_count[idx] + 1
+    idx <- which(quiz$session$word_scores$ga == word_row$ga)
+
+    if (length(idx) == 1) {
+      quiz$session$word_scores$seen_count[idx] <- quiz$session$word_scores$seen_count[idx] + 1
+      if (correct) {
+        quiz$session$word_scores$correct_count[idx] <- quiz$session$word_scores$correct_count[idx] + 1
       }
+      quiz$session$word_scores$score[idx] <-
+        quiz$session$word_scores$correct_count[idx] / quiz$session$word_scores$seen_count[idx]
+      quiz$session$word_scores$last_seen[idx] <- Sys.time()
 
+      correct_flag <- ifelse(correct, "1", "0")
+      now <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+      entry <- paste0(now, "|", correct_flag)
+
+      prev_log <- quiz$session$word_scores$history_log[idx]
+      quiz$session$word_scores$history_log[idx] <- ifelse(prev_log == "", entry, paste(prev_log, entry, sep = ","))
+
+      prev_hist <- quiz$session$word_scores$override_history[idx]
+      quiz$session$word_scores$override_history[idx] <- ifelse(prev_hist == "", correct_flag, paste0(prev_hist, ",", correct_flag))
+    }
+
+    quiz$feedback <- if (correct) {
+      "✅ Correct!"
     } else {
-      correct <- user_answer == tolower(current_word$en)
-
-      # Post action overrides
-      action <- input$post_action
-      if (action == "mark_correct") {
-        correct <- TRUE
-        user_data$feedback <- "✔ Marked as correct by user."
-      } else if (action == "exclude") {
-        idx <- which(user_data$word_scores$ga == current_word$ga)
-        if (length(idx) == 1) {
-          user_data$word_scores$excluded[idx] <- TRUE
-          user_data$feedback <- "🚫 Word excluded from future quizzes."
-        }
-        correct <- FALSE  # Don't count correct if excluded
-      } else {
-        # Normal feedback
-        user_data$feedback <- if (correct) "✅ Correct!" else paste0("❌ Incorrect. Expected: ", current_word$en)
-      }
-
-      # Update word_scores stats if not excluded
-      if (action != "exclude") {
-        idx <- which(user_data$word_scores$ga == current_word$ga)
-        if (length(idx) == 1) {
-          user_data$word_scores$seen_count[idx] <- user_data$word_scores$seen_count[idx] + 1
-          if (correct) {
-            user_data$word_scores$correct_count[idx] <- user_data$word_scores$correct_count[idx] + 1
-          }
-          user_data$word_scores$score[idx] <- user_data$word_scores$correct_count[idx] / user_data$word_scores$seen_count[idx]
-          user_data$word_scores$last_seen[idx] <- Sys.time()
-
-          prev_hist <- user_data$word_scores$override_history[idx]
-          new_entry <- ifelse(correct, "1", "0")
-          if (prev_hist == "") {
-            user_data$word_scores$override_history[idx] <- new_entry
-          } else {
-            user_data$word_scores$override_history[idx] <- paste0(prev_hist, ",", new_entry)
-          }
-        }
-      }
+      paste0("❌ Incorrect. Correct answer: ", word_row$en)
     }
 
-    # Move to next question
-    user_data$current_question <- user_data$current_question + 1
+    quiz$current_index <- quiz$current_index + 1
 
-    # Save scores when quiz ends
-    if (user_data$current_question > nrow(user_data$quiz_data)) {
-      saveRDS(user_data$word_scores, user_data$score_file)
-      user_data$quiz_active <- FALSE
-      user_data$feedback <- "Quiz complete! Your progress has been saved."
+    if (quiz$current_index > nrow(quiz$quiz_data)) {
+      quiz$complete <- TRUE
+      saveRDS(state$word_scores, state$score_file)
+      quiz$feedback <- paste(quiz$feedback, "\n\nQuiz complete! Progress saved.")
     }
 
-    # Reset answer input for next question
-    updateTextInput(session, "answer", value = "")
-    updateRadioButtons(session, "post_action", selected = "continue")
+    updateTextInput(session, "user_answer", value = "")
   })
 
-  # Restart quiz (goes back to setup)
-  observeEvent(input$restart, {
-    user_data$quiz_active <- FALSE
-    user_data$current_question <- 0
-    user_data$feedback <- ""
-  })
-
-  # Show feedback
-  output$quiz_feedback <- renderText({
-    user_data$feedback
+  output$feedback_ui <- renderUI({
+    if (quiz$feedback != "") {
+      div(style = "margin-top:20px;", strong(quiz$feedback))
+    }
   })
 }
 
-shinyApp(ui, server)
+shinyApp(ui = ui, server = server)

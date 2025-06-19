@@ -1,6 +1,3 @@
-## --- Corpas (word embeddings)
-# link: https://www.corpas.ie/en/extras/word-embeddings/
-# load python functionality for finding similar words based on meaning and/or morphology
 
 load_vectors <- function(limit = 100000) {
   #gensim <- reticulate::import("gensim", delay_load = FALSE)

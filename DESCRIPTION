@@ -17,5 +17,5 @@ Depends:
     R (>= 2.10)
 LazyData: true
 LazyDataCompression: xz
-URL: https://github.com/shanecrinion/Dagda
-BugReports: https://github.com/shanecrinion/Dagda/issues
+URL: https://github.com/shanecrinion/dagda
+BugReports: https://github.com/shanecrinion/dagda/issues
