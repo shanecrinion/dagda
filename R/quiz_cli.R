@@ -44,14 +44,25 @@ filter_words <- function(wordbank,
 
   return(filtered)
 }
+print(dim(filter_words(test_data.clean,rank_limit = 100)))
+
+get_username <- function(username = NULL) {
+  if (!is.null(username)) {
+    return(username)
+  } else {
+    return(readline("Enter your username: "))
+  }
+}
 
 
 # Function to prompt for username and load/create user scores
-load_user_scores <- function(wordbank, save_dir = "user_data") {
-  username <- readline(prompt = "Enter your username: ")
+load_user_scores <- function(wordbank, save_dir = "user_data", shiny=T) {
+  username <- get_username()
 
   if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
+
   score_file <- file.path(save_dir, paste0("word_scores_", username, ".rds"))
+  print(score_file)
 
   if (file.exists(score_file)) {
     word_scores <- readRDS(score_file)
@@ -79,6 +90,11 @@ run_quiz_cli <- function(wordbank,
                          dialect_filter = NULL,
                          n_questions = 10,
                          rank_limit = NULL) {
+
+  # Load or create user-specific word_scores
+  session <- load_user_scores(wordbank, shiny=F)
+  word_scores <- session$word_scores
+  score_file <- session$score_file
 
   # Apply filtering based on user's request
   quiz_data <- filter_words(word_scores, column_filters, dialect_filter, rank_limit)

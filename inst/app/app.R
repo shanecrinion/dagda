@@ -65,6 +65,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$save_user, {
     req(input$username)
+
     session_data <- load_user_scores(wordbank)
     state$word_scores <- session_data$word_scores
     state$score_file <- session_data$score_file
