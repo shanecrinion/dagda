@@ -44,7 +44,6 @@ filter_words <- function(wordbank,
 
   return(filtered)
 }
-print(dim(filter_words(test_data.clean,rank_limit = 100)))
 
 get_username <- function(username = NULL) {
   if (!is.null(username)) {
@@ -62,7 +61,6 @@ load_user_scores <- function(wordbank, save_dir = "user_data", shiny=T) {
   if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
   score_file <- file.path(save_dir, paste0("word_scores_", username, ".rds"))
-  print(score_file)
 
   if (file.exists(score_file)) {
     word_scores <- readRDS(score_file)
