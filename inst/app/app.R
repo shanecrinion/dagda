@@ -1,17 +1,16 @@
 library(shiny)
 library(dplyr)
 library(tibble)
-library(here)
 
 if (!requireNamespace("dagda", quietly = TRUE)) {
   install.packages("remotes")
   remotes::install_github("shanecrinion/dagda")
 }
 
-load(here::here('data', 'test_data_clean.Rdata'))
+source(system.file("data", "test_data_clean.Rdata", package = "dagda"))
 
 filterable_columns <- c("part_of_speech", "gender")
-source(here::here('R', 'quiz_cli.R'))
+source(system.file("R", "quiz_cli.R", package = "dagda"))
 
 ui <- fluidPage(
   titlePanel("Irish Vocabulary Quiz"),
