@@ -10,8 +10,6 @@ if (!requireNamespace("dagda", quietly = TRUE)) {
 
 test_data.clean <- readRDS(system.file("data", "test_data_clean.rds", package = "dagda"))
 
-#load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
-
 filterable_columns <- c("part_of_speech", "gender")
 #source(system.file("R", "quiz_cli.R", package = "dagda"))
 
