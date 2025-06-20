@@ -1,6 +1,9 @@
 library(dplyr)
 library(tibble)
 
+#' Filter words based on user choices
+#'
+#' @export
 filter_words <- function(wordbank,
                          column_filters = list(),
                          dialect_filter = NULL,
@@ -45,6 +48,9 @@ filter_words <- function(wordbank,
   return(filtered)
 }
 
+#' Get the username entered
+#'
+#' @export
 get_username <- function(username = NULL, interactive_mode = TRUE) {
   if (!is.null(username) && username != "") {
     return(username)
@@ -57,7 +63,9 @@ get_username <- function(username = NULL, interactive_mode = TRUE) {
   }
 }
 
-
+#' Load previous scores to update memory
+#'
+#' @export
 
 # Function to prompt for username and load/create user scores
 load_user_scores <- function(wordbank, username = NULL, save_dir = "user_data", interactive_mode = TRUE) {
@@ -88,6 +96,9 @@ load_user_scores <- function(wordbank, username = NULL, save_dir = "user_data", 
   list(username = username, word_scores = word_scores, score_file = score_file)
 }
 
+#' Run the quiz
+#'
+#' @export
 run_quiz_cli <- function(wordbank,
                          column_filters = list(),
                          dialect_filter = NULL,
