@@ -66,7 +66,6 @@ get_username <- function(username = NULL, interactive_mode = TRUE) {
 #' Load previous scores to update memory
 #'
 #' @export
-
 # Function to prompt for username and load/create user scores
 load_user_scores <- function(wordbank, username = NULL, save_dir = "user_data", interactive_mode = TRUE) {
   username <- get_username(username, interactive_mode = interactive_mode)
