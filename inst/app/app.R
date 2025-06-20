@@ -10,6 +10,8 @@ if (!requireNamespace("dagda", quietly = TRUE)) {
 
 test_data.clean <- readRDS(system.file("data", "test_data_clean.rds", package = "dagda"))
 
+#load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
+
 filterable_columns <- c("part_of_speech", "gender")
 #source(system.file("R", "quiz_cli.R", package = "dagda"))
 
@@ -70,6 +72,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$save_user, {
     req(input$username)
+    paste('Entering info for', input$username)
 
     session_data <- load_user_scores(wordbank, username = input$username, interactive_mode = FALSE)
     state$word_scores <- session_data$word_scores

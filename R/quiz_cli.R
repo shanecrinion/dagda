@@ -59,7 +59,8 @@ get_username <- function(username = NULL, interactive_mode = TRUE) {
   if (interactive_mode) {
     return(readline("Enter your username: "))
   } else {
-    stop("Username must be supplied in non-interactive mode (e.g., in Shiny).")
+    warning("No username supplied in non-interactive mode.")
+    return('anon')
   }
 }
 
