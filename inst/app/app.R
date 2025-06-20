@@ -7,9 +7,8 @@ if (!requireNamespace("dagda", quietly = TRUE)) {
   remotes::install_github("shanecrinion/dagda")
 }
 
-data_env <- new.env()
 
-load(system.file("data", "test_data_clean.Rdata", package = "dagda"), envir = data_env)
+test_data.clean <- readRDS(system.file("data", "test_data_clean.rds", package = "dagda"))
 
 #load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
 
@@ -61,7 +60,7 @@ server <- function(input, output, session) {
     username = NULL
   )
 
-  wordbank <- data_env$test_data.clean
+  wordbank <- test_data.clean
 
   quiz <- reactiveValues(
     session = NULL,
