@@ -27,7 +27,6 @@ saveRDS(corpus, file="inst/extdata/corpus.rds")
 tearma <- read.csv('inst/extdata/full_terminology_table.csv',stringsAsFactors = F)
 # some addition parsing
 tearma <- tearma %>% separate(subjectField, into = c('subjectField', 'subsetField'), sep=' » ')
-head(tearma)
 #saveRDS(tearma, file="inst/extdata/tearma.rds")
 
 ## --- Anki - Irish words and short periphrases with ordering by frequency
