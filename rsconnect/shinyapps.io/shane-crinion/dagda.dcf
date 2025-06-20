@@ -1,0 +1,10 @@
+name: dagda
+title:
+username: shane-crinion
+account: shane-crinion
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14955094
+bundleId:
+url: https://shane-crinion.shinyapps.io/dagda/
+version: 1
