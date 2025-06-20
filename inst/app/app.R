@@ -8,7 +8,7 @@ if (!requireNamespace("dagda", quietly = TRUE)) {
   renv::install("shanecrinion/dagda")
 }
 
-# test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
+test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
 
 #load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
 
