@@ -8,7 +8,7 @@ if (!requireNamespace("dagda", quietly = TRUE)) {
 }
 
 
-test_data.clean <- readRDS(system.file("data", "test_data_clean.rds", package = "dagda"))
+test_data.clean <- readRDS("data/test_data_clean.rds")
 
 #load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
 
