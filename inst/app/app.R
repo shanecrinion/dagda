@@ -1,13 +1,14 @@
 library(shiny)
 library(dplyr)
+library(dagda)
 library(tibble)
 
 if (!requireNamespace("dagda", quietly = TRUE)) {
   install.packages("remotes")
   renv::install("shanecrinion/dagda")
 }
-#
-test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
+
+# test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
 
 #load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
 
