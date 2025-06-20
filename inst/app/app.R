@@ -4,7 +4,7 @@ library(tibble)
 
 if (!requireNamespace("dagda", quietly = TRUE)) {
   install.packages("remotes")
-  remotes::install_github("shanecrinion/dagda")
+  renv::install("shanecrinion/dagda")
 }
 
 test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
