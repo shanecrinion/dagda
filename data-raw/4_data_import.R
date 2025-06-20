@@ -42,6 +42,7 @@ word_data <- list(
   anki = anki,
   frequency.guide = corpus.pos)
 #save(word_data, file='data/word_data.Rdata')
+saveRDS(word_data, file='data/word_data.rds')
 
 # making a html-clean version too
 ankicleanHTML <- read.csv('inst/extdata/anki_cleanHTML.csv', stringsAsFactors = F)
@@ -55,6 +56,8 @@ test_data <- test_data[order(as.integer(test_data$rank)),
                        c('ga','en', 'lemma', 'rank',
                          'pos','part_of_speech', 'gender','genitiveVN')]
 save(test_data, file='data/test_data.Rdata')
+load('data/test_data.Rdata')
+saveRDS(test_data, file='data/test_data.rds')
 
 # Get test data ready for processing
 test_data.clean = merge(ankicleanHTML, word_data$frequency, by.x='ga', by.y='word_form')
@@ -63,8 +66,8 @@ test_data.clean = merge(ankicleanHTML, word_data$frequency, by.x='ga', by.y='wor
 test_data.clean <- test_data.clean[order(as.integer(test_data.clean$rank)),
                                    c('ga','en', 'lemma', 'rank',
                                      'pos','part_of_speech', 'gender','genitiveVN')]
-save(test_data.clean, file='data/test_data_clean.Rdata')
-
+#save(test_data.clean, file='data/test_data_clean.Rdata')
+#saveRDS(test_data.clean, 'data/test_data_clean.rds') # save RDS for shiny
 
 ## --- Corpas (word embeddings)
 # link: https://www.corpas.ie/en/extras/word-embeddings/
