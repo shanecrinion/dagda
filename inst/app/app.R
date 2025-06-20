@@ -1,8 +1,12 @@
 library(shiny)
-library(dagda)
 library(dplyr)
 library(tibble)
 library(here)
+
+if (!requireNamespace("dagda", quietly = TRUE)) {
+  install.packages("remotes")
+  remotes::install_github("shanecrinion/dagda")
+}
 
 load(here::here('data', 'test_data_clean.Rdata'))
 
@@ -67,7 +71,7 @@ server <- function(input, output, session) {
   observeEvent(input$save_user, {
     req(input$username)
 
-    session_data <- load_user_scores(wordbank)
+    session_data <- load_user_scores(wordbank, username = input$username, interactive_mode = FALSE)
     state$word_scores <- session_data$word_scores
     state$score_file <- session_data$score_file
     state$username <- input$username

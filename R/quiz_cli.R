@@ -45,18 +45,23 @@ filter_words <- function(wordbank,
   return(filtered)
 }
 
-get_username <- function(username = NULL) {
-  if (!is.null(username)) {
+get_username <- function(username = NULL, interactive_mode = TRUE) {
+  if (!is.null(username) && username != "") {
     return(username)
-  } else {
+  }
+
+  if (interactive_mode) {
     return(readline("Enter your username: "))
+  } else {
+    stop("Username must be supplied in non-interactive mode (e.g., in Shiny).")
   }
 }
 
 
+
 # Function to prompt for username and load/create user scores
-load_user_scores <- function(wordbank, save_dir = "user_data", shiny=T) {
-  username <- get_username()
+load_user_scores <- function(wordbank, username = NULL, save_dir = "user_data", interactive_mode = TRUE) {
+  username <- get_username(username, interactive_mode = interactive_mode)
 
   if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
@@ -90,7 +95,7 @@ run_quiz_cli <- function(wordbank,
                          rank_limit = NULL) {
 
   # Load or create user-specific word_scores
-  session <- load_user_scores(wordbank, shiny=F)
+  session <- load_user_scores(wordbank, interactive_mode = TRUE)
   word_scores <- session$word_scores
   score_file <- session$score_file
 
