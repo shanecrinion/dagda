@@ -7,7 +7,7 @@ if (!requireNamespace("dagda", quietly = TRUE)) {
   remotes::install_github("shanecrinion/dagda")
 }
 
-source(system.file("data", "test_data_clean.Rdata", package = "dagda"))
+load(system.file("data", "test_data_clean.Rdata", package = "dagda"))
 
 filterable_columns <- c("part_of_speech", "gender")
 source(system.file("R", "quiz_cli.R", package = "dagda"))

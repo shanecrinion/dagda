@@ -1,3 +1,5 @@
 ^GaelLearnR\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^extdata/cng-fasttext.vec$
+^extdata/cng-word2vec.vec$
