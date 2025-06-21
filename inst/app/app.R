@@ -15,13 +15,14 @@ test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "da
 filterable_columns <- c("part_of_speech", "gender")
 #source(system.file("R", "quiz_cli.R", package = "dagda"))
 
+
 ui <- fluidPage(
   titlePanel("Irish Vocabulary Quiz"),
   sidebarLayout(
     sidebarPanel(
       textInput("username", "Enter Username:", value = ""),
       actionButton("save_user", "Enter Username"),
-      numericInput("n_questions", "Number of Questions", value = 10, min = 1),
+      numericInput("n_questions", "Number of Questions", value = 5, min = 5),
       textInput("dialect", "Dialect Filter (optional):"),
 
       radioButtons("rank_mode", "Choose Rank Input Mode:",
@@ -30,14 +31,23 @@ ui <- fluidPage(
 
       conditionalPanel(
         condition = "input.rank_mode == 'single'",
-        sliderInput("rank_value", "Select Max Rank Value:",
-                    min = 1, max = 7500, value = 100, step = 5)
+        numericInput("rank_value", "Enter Max Rank Value:",
+                     value = 100, min = 1, max = 7357, step = 1)
       ),
 
       conditionalPanel(
         condition = "input.rank_mode == 'range'",
-        sliderInput("rank_range", "Select Rank Range:",
-                    min = 1, max = 1000, value = c(1, 100), step = 10)
+        fluidRow(
+          column(6,
+                 numericInput("rank_range_min", "Start of Range:",
+                              value = 0, min = 0, max = 50, step = 1)
+          ),
+          column(6,
+                 numericInput("rank_range_max", "End of Range:",
+                              value = 10, min = 0, max = 50, step = 1)
+          )
+        ),
+        actionButton("next_range_words", "Next 10 Words in Range")
       ),
 
       uiOutput("dynamic_filters"),
@@ -70,6 +80,7 @@ server <- function(input, output, session) {
     complete = FALSE
   )
 
+  quiz$range_offset <- 0
   observeEvent(input$save_user, {
     req(input$username)
     paste('Entering info for', input$username)
@@ -101,6 +112,40 @@ server <- function(input, output, session) {
     if (is.null(quiz$quiz_data)) return("Waiting to start quiz...")
     paste("Question", quiz$current_index, "of", nrow(quiz$quiz_data))
   })
+
+  filtered_quiz_data <- reactive({
+    req(state$word_scores)
+
+    if (input$rank_mode != "range") return(NULL)
+
+    min_val <- input$rank_range_min
+    max_val <- input$rank_range_max
+
+    if (is.null(min_val) || is.null(max_val) || min_val > max_val) return(NULL)
+
+    selected_filters <- list()
+    for (col in filterable_columns) {
+      input_id <- paste0("filter_", col)
+      selected_vals <- input[[input_id]]
+      if (!is.null(selected_vals) && length(selected_vals) > 0) {
+        selected_filters[[col]] <- selected_vals
+      }
+    }
+
+    data <- filter_words(
+      state$word_scores,
+      column_filters = selected_filters,
+      dialect_filter = input$dialect,
+      rank_limit = c(min_val, max_val)
+    )
+
+    data <- data %>%
+      filter(!excluded, !is.na(ga), !is.na(en)) %>%
+      distinct(ga, .keep_all = TRUE)
+
+    data
+  })
+
 
   observeEvent(input$start_quiz, {
     req(state$word_scores)

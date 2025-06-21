@@ -1,6 +1,22 @@
 library(dplyr)
 library(tibble)
 
+#' Filter how to process HTML codes
+#'
+#' @export
+display_explanation <- function(text, use_html = shiny::isRunning()) {
+  if (use_html) {
+    # Use HTML rendering in Shiny (with line breaks)
+    HTML(gsub("\n", "<br>", text))
+  } else {
+    # Use CLI output (strip HTML tags)
+    plain <- gsub("<[^>]+>", "", text)
+    if(plain==''){cat(text)} else {
+      cat(text, "\n")}
+  }
+}
+
+
 #' Filter words based on user choices
 #'
 #' @export
@@ -169,18 +185,20 @@ run_quiz_cli <- function(wordbank,
     answer <- readline(prompt = "Type the English translation: ")
 
     if (tolower(answer) %in% c("skip", "s", "")) {
-      cat("Skipped!\n")
+
       word_scores[word_scores$ga == word_row$ga, "skipped_count"] <-
         word_scores[word_scores$ga == word_row$ga, "skipped_count"] + 1
+      cat("Skipped!\nExpected word was:\n", word_row$en)
       next
     }
-
     correct <- !is.na(word_row$en) && tolower(answer) == tolower(word_row$en)
 
     if (correct) {
       cat("✅ Correct!\n")
     } else {
-      cat("❌ Incorrect. Expected: ", word_row$en, "\n", sep = "")
+      cat("❌ Incorrect. Expected: \n" ,
+          display_explanation(word_row[1], use_html = FALSE),
+           "\n", sep = "")
     }
 
     cat("Options: [m]ark correct, e[x]clude word, [Enter] to continue: ")
