@@ -3,10 +3,6 @@ library(dplyr)
 library(dagda)
 library(tibble)
 
-if (!requireNamespace("dagda", quietly = TRUE)) {
-  install.packages("remotes")
-  renv::install("shanecrinion/dagda")
-}
 
 test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
 
@@ -81,6 +77,35 @@ server <- function(input, output, session) {
   )
 
   quiz$range_offset <- 0
+
+  # observe count of words
+  observeEvent(input$next_range_words, {
+  req(filtered_quiz_data())
+
+  data <- filtered_quiz_data()
+
+  start_idx <- quiz$range_offset + 1
+  end_idx <- start_idx + 9
+
+  if (start_idx > nrow(data)) {
+    showNotification("No more words in this range.", type = "warning")
+    return()
+  }
+
+  quiz$quiz_data <- data[start_idx:min(end_idx, nrow(data)), ]
+  quiz$current_index <- 1
+  quiz$complete <- FALSE
+  quiz$feedback <- ""
+
+  quiz$range_offset <- quiz$range_offset + 10
+})
+
+  observe({
+    input$rank_range_min
+    input$rank_range_max
+    quiz$range_offset <- 0
+  })
+
   observeEvent(input$save_user, {
     req(input$username)
     paste('Entering info for', input$username)
@@ -112,16 +137,8 @@ server <- function(input, output, session) {
     if (is.null(quiz$quiz_data)) return("Waiting to start quiz...")
     paste("Question", quiz$current_index, "of", nrow(quiz$quiz_data))
   })
-
   filtered_quiz_data <- reactive({
     req(state$word_scores)
-
-    if (input$rank_mode != "range") return(NULL)
-
-    min_val <- input$rank_range_min
-    max_val <- input$rank_range_max
-
-    if (is.null(min_val) || is.null(max_val) || min_val > max_val) return(NULL)
 
     selected_filters <- list()
     for (col in filterable_columns) {
@@ -132,28 +149,32 @@ server <- function(input, output, session) {
       }
     }
 
-    data <- filter_words(
+    rank_limit <- switch(input$rank_mode,
+                         "single" = input$rank_value,
+                         "range" = c(input$rank_range_min, input$rank_range_max),
+                         NULL)
+
+    if (is.null(rank_limit)) {
+      quiz$feedback <- "Invalid rank settings."
+      quiz$complete <- TRUE
+      return(NULL)
+    }
+
+    quiz_data <- filter_words(
       state$word_scores,
       column_filters = selected_filters,
       dialect_filter = input$dialect,
-      rank_limit = c(min_val, max_val)
+      rank_limit = rank_limit
     )
 
-    data <- data %>%
+    quiz_data %>%
       filter(!excluded, !is.na(ga), !is.na(en)) %>%
       distinct(ga, .keep_all = TRUE)
-
-    data
   })
 
 
   observeEvent(input$start_quiz, {
     req(state$word_scores)
-
-    # Handle rank input mode
-    rank_input <- switch(input$rank_mode,
-                         "single" = input$rank_value,
-                         "range" = input$rank_range)
 
     selected_filters <- list()
     for (col in filterable_columns) {
@@ -168,7 +189,7 @@ server <- function(input, output, session) {
       state$word_scores,
       column_filters = selected_filters,
       dialect_filter = input$dialect,
-      rank_limit = rank_input
+      rank_limit = input$rank_value
     )
 
     quiz_data <- quiz_data %>%
