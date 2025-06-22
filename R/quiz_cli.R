@@ -12,7 +12,7 @@ display_explanation <- function(text, use_html = shiny::isRunning()) {
     # Use CLI output (strip HTML tags)
     plain <- gsub("<[^>]+>", "", text)
     if(plain==''){cat(text)} else {
-      cat(text, "\n")}
+      print(text)}
   }
 }
 
@@ -140,7 +140,6 @@ run_quiz_cli <- function(wordbank,
   # Ensure the number of questions does not exceed available words
   n_questions <- min(n_questions, nrow(quiz_data))
 
-  # Sample the quiz words
   # Remove problematic rows up front
   quiz_data <- quiz_data %>%
     filter(!excluded, !is.na(ga), !is.na(en)) %>%
@@ -152,22 +151,8 @@ run_quiz_cli <- function(wordbank,
     return(invisible(NULL))
   }
 
-  # Now randomly sample n_questions
-  # Remove problematic rows up front
-  quiz_data <- quiz_data %>%
-    filter(!excluded, !is.na(ga), !is.na(en)) %>%
-    distinct(ga, .keep_all = TRUE)
-
-  # Safety check: are there enough valid words?
-  if (nrow(quiz_data) < n_questions) {
-    cat("Only", nrow(quiz_data), "valid words available for the quiz.\n")
-    return(invisible(NULL))
-  }
-
-  # Now randomly sample n_questions
-  quiz_data <- quiz_data %>% slice_sample(n = n_questions)
-
-  quiz_data <- quiz_data %>% distinct(ga, .keep_all = TRUE)
+  # Instead of random sampling, take first n_questions rows
+  quiz_data <- quiz_data %>% slice_head(n = n_questions)
 
   # Keep track of asked words
   asked_words <- character(0)
@@ -196,9 +181,8 @@ run_quiz_cli <- function(wordbank,
     if (correct) {
       cat("✅ Correct!\n")
     } else {
-      cat("❌ Incorrect. Expected: \n" ,
-          display_explanation(word_row[1], use_html = FALSE),
-           "\n", sep = "")
+      cat("❌ Incorrect. Expected: \n" )
+      print(display_explanation(word_row[1], use_html = FALSE))
     }
 
     cat("Options: [m]ark correct, e[x]clude word, [Enter] to continue: ")
