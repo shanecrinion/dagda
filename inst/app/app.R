@@ -6,8 +6,29 @@ library(tibble,quietly = T)
 test_data.clean <- readRDS(system.file("data/test_data.rds", package = "dagda"))
 filterable_columns <- c("part_of_speech", "gender")
 
+generate_feedback_html <- function(word_row, correct = FALSE) {
+  icon <- if (correct) "✅" else "❌"
+  header <- if (correct) "Correct!" else "Incorrect!"
+  css_class <- if (correct) "correct" else "incorrect"
+
+  HTML(paste0(
+    "<div class='feedback-container ", css_class, "'>",
+    "<div class='feedback-header'>", icon, " ", header, "</div>",
+    "<div class='feedback-entry'><strong>Gaeilge:</strong> <span class='ga-text'>", word_row$ga, "</span></div>",
+    "<div class='feedback-entry'><strong>Béarla:</strong> <span class='en-text'>", word_row$en, "</span></div>",
+    "<div class='feedback-entry'><strong>GinideachVN:</strong> <span class='genitive-text'>", word_row$genitiveVN, "</span></div>",
+    "</div>"
+  ))
+}
+
 
 ui <- fluidPage(
+
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+
+
   titlePanel("Vocab Quiz "),
   sidebarLayout(
     sidebarPanel(
@@ -17,8 +38,8 @@ ui <- fluidPage(
       hr(),
       numericInput("n_questions", "Number of Questions", value = 5, min = 5, step = 5),
       hr(),
-      radioButtons("quiz_order_mode", "Order:",
-                   choices = c("Word frequency" = "ordered",
+      radioButtons("quiz_order_mode", "Order words by frequency:",
+                   choices = c("Ordered" = "ordered",
                                "Random" = "random"),
                    selected = "ordered", inline = TRUE),
       hr(),
@@ -57,6 +78,7 @@ ui <- fluidPage(
     ),
     mainPanel(
      uiOutput("question_ui"),
+     hr(),
       uiOutput("feedback_ui")
     )
   )
@@ -212,12 +234,14 @@ server <- function(input, output, session) {
     if (quiz$current_index > nrow(quiz$quiz_data)) return(NULL)
 
     word <- quiz$quiz_data[quiz$current_index, "ga", drop = TRUE]
-    paste("Question", quiz$current_index, "of", nrow(quiz$quiz_data))
+
     tagList(
-      strong("Translate this word from Irish:"),
-      h3(word),
-      textInput("user_answer", "Your Answer:"),
-      actionButton("submit_answer", "Submit Answer")
+      div(class = "card bg-light mb-3", style = "padding: 15px;",
+          strong("Translate this word from Irish:"),
+          h3(word),
+          textInput("user_answer", "Your Answer:"),
+          actionButton("submit_answer", "Submit Answer")
+      )
     )
   })
 
@@ -251,10 +275,16 @@ server <- function(input, output, session) {
     }
 
     quiz$feedback <- if (correct) {
-      "✅ Correct!"
+      quiz$feedback <- generate_feedback_html(word_row, correct = TRUE)
+
     } else {
-      paste0("❌ Incorrect. \nCorrect answer: \n",word_row$en)
+      quiz$feedback <- generate_feedback_html(word_row, correct = FALSE)
     }
+
+    # When rendering in Shiny:
+    output$feedbackText <- renderUI({
+      HTML(quiz$feedback)
+    })
 
     quiz$current_index <- quiz$current_index + 1
 
@@ -327,43 +357,59 @@ server <- function(input, output, session) {
     current_word <- quiz$quiz_data[quiz$current_index - 1, "ga", drop = TRUE]
     is_excluded <- current_word %in% excluded_words()
 
-    feedback_elements <- list(
-      div(style = "margin-top:20px;", quiz$feedback)
+    # Feedback text area with padding and background
+    feedback_text <- div(
+      style = "padding: 15px; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 15px; font-size: 16px;",
+      HTML(quiz$feedback)
     )
 
+    # Buttons styled and spaced well
     if (!quiz$complete) {
-      # During quiz: show interactive buttons
-      feedback_elements <- append(feedback_elements, list(
-        actionButton("mark_correct", "✅ Overwrite as Correct"),
-        actionButton(
+      # During quiz: interactive buttons in one row
+      buttons <- fluidRow(
+        column(6, actionButton("mark_correct", "✅ Overwrite as Correct", class = "btn btn-success btn-block")),
+        column(6, actionButton(
           "toggle_exclude_word",
-          if (is_excluded) "♻️ Un-Exclude Word" else "🚫 Exclude Word"
-        )
-      ))
-    } else {
-      # After quiz: show repeat and next options
-      if (!is.null(quiz$last_quiz_words)) {
-        feedback_elements <- append(feedback_elements, list(
-          actionButton(
-            "repeat_same_words",
-            "🔁 Same Words Again?",
-            disabled = is.null(quiz$last_quiz_words)
-          )
+          if (is_excluded) "♻️ Un-Exclude Word" else "🚫 Exclude Word",
+          class = if (is_excluded) "btn btn-warning btn-block" else "btn btn-danger btn-block"
         ))
+      )
+    } else {
+      # After quiz: repeat and next range options
+      buttons_list <- list()
+
+      if (!is.null(quiz$last_quiz_words)) {
+        buttons_list <- c(buttons_list,
+                          fluidRow(
+                            column(12,
+                                   actionButton("repeat_same_words", "🔁 Same Words Again?", class = "btn btn-primary btn-block",
+                                                disabled = is.null(quiz$last_quiz_words))
+                            )
+                          )
+        )
       }
 
       if (input$rank_mode == "range" && input$quiz_order_mode != "random") {
-        feedback_elements <- append(feedback_elements, list(
-          actionButton(
-            "next_range",
-            paste0("➡️ Next ", input$n_questions, " Most Common Words"),
-            disabled = is.null(quiz$quiz_data)
-          )
-        ))
+        buttons_list <- c(buttons_list,
+                          fluidRow(
+                            column(12,
+                                   actionButton("next_range",
+                                                paste0("➡️ Next ", input$n_questions, " Most Common Words"),
+                                                class = "btn btn-secondary btn-block",
+                                                disabled = is.null(quiz$quiz_data))
+                            )
+                          )
+        )
       }
+
+      buttons <- tagList(buttons_list)
     }
 
-    tagList(feedback_elements)
+    # Return combined UI elements inside a well panel for subtle box effect
+    wellPanel(
+      feedback_text,
+      buttons
+    )
   })
 
   observeEvent(input$toggle_exclude_word, {
