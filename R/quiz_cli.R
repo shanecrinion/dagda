@@ -190,7 +190,7 @@ run_quiz_cli <- function(wordbank,
         cat("✅ Correct!\n")
       } else {
         cat("❌ Incorrect. Expected: \n")
-        print(display_explanation(word_row[1], use_html = FALSE))
+        print(display_explanation(word_row$en, use_html = FALSE))
       }
 
       cat("Options: [m]ark correct, e[x]clude word, [Enter] to continue: ")

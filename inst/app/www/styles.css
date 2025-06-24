@@ -1,24 +1,99 @@
-:root {
-  --main-color: #3a4f24;
-  --main-color-light: #76895f;
-  --background-color: #f8f4eb;
-  --text-color: #2d2926;
-  --accent-red: #7c2b27;
-  --accent-blue: #40637c;
-  --accent-gold: #bfa05a;
+@font-face {
+  font-family: 'urgc';
+  src: url('urgc.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
 }
+
+
+:root {
+  --main-color: #4d6631;          /* Earthy green, softer */
+  --main-color-light: #91a96e;    /* Lightened complementary green */
+  --background-color: #e6eedf;    /* Mossy, less dark */
+  --text-color: #2d2926;          /* Dark neutral for legibility */
+  --accent-red: #7c2b27;          /* Deep muted red */
+  --accent-blue: #40637c;         /* Slate blue */
+  --accent-gold: #e1c878;         /* Brighter warm gold */
+  --font-family: 'Arial', sans-serif; /* Default font family */
+  --font-code: 'Fira Code', monospace;
+  --font-size: 16px;              /* Base font size */
+  --border-radius: 0;             /* Sharp corners */
+  --heading-size: 2rem;
+}
+
+
+/* Smaller numeric inputs */
+input[type="number"] {
+  font-family: 'Fira Code', monospace;
+  max-width: 100%;
+}
+
+/* Buttons */
+.btn {
+  padding: 2px 10px;
+  font-size: 9px;
+  background-color: var(--accent-red);
+  color: var(--accent-blue);
+  border: 1px solid var(--main-color-light);
+  border-radius: 4px;
+}
+.btn:hover {
+  background-color: var(--main-color-light);
+  color: var(--background-color);
+}
+
+
+/* Buttons */
+.btn {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #FFFFFF;
+}
+.btn:hover,
+.btn:focus {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 5px var(--accent-gold);
+}
+
+
+/* Align question & feedback UI */
+#question_ui, #feedback_ui {
+  padding: 10px;
+  background-color: var(--background-color)
+  border-radius: 8px;
+}
+
+/* Make UI elements compact on mainPanel too */
+.mainPanel {
+  padding-left: 20px;
+  background-color: var(--main-color);
+  color: var(--text-color);
+}
+
 
 /* Body and general layout */
 body {
   background-color: var(--background-color);
   color: var(--text-color);
-  font-family: 'Segoe UI', sans-serif;
+  font-family:'Segoe UI', sans-serif;
 }
 
 /* Headers */
-h1, h2, h3, h4, h5 {
-  color: var(--main-color);
+h1 {
+  font-size: 100px;
+  color: var(--accent-blue);
+  font-family: 'urgc', 'Segoe UI', sans-serif;
 }
+
+
+h2, h3, h4, h5 {
+  font-size: 40px;
+  color: var(--accent-blue);
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+}
+
+
 
 /* Navbar (if used) */
 .navbar, .navbar-default {
@@ -30,25 +105,15 @@ h1, h2, h3, h4, h5 {
   color: var(--background-color);
 }
 
-/* Buttons */
-.btn {
-  background-color: var(--main-color);
-  border-color: var(--main-color);
-  color: var(--background-color);
-}
-.btn:hover,
-.btn:focus {
-  background-color: var(--main-color-light);
-  border-color: var(--main-color-light);
-}
 
 /* Inputs and focus */
 input[type="text"]:focus,
 select:focus,
 textarea:focus,
 .form-control:focus {
-  border-color: var(--main-color);
-  box-shadow: 0 0 5px rgba(58, 79, 36, 0.5);
+  border-color: var(--accent-gold);
+  font-family: 'Fira Code', monospace;
+  box-shadow: 0 0 5px var(--accent-gold);
 }
 
 /* Sliders */
@@ -84,5 +149,76 @@ a:hover {
 /* Font sizing */
 .feedback-container, .form-control, .btn {
   font-size: 16px;
+}
+
+
+/* === Custom Sidebar Panel Styling === */
+.custom-sidebar {
+  background-color: var(--background-color);
+  border-radius: 0;
+  color: var(--text-color);
+  padding: 10px;
+  border-right: 1px solid var(--main-color);
+  border-left: 0px;
+  border-bottom: 0px;
+  border-top: 0px;
+  box-shadow: 0 0 5px var(--accent-gold);
+  min-height: 100vh; /* Optional: makes it full-height */
+  font-family: 'Fira Code', monospace;
+}
+
+
+.custom-sidebar label,
+.custom-sidebar .form-group {
+  margin-bottom: 0.5rem;
+}
+
+.custom-sidebar input,
+.custom-sidebar select,
+.custom-sidebar .form-control {
+
+  background-color: #FFFFFF;
+  color: var(--accent-blue);
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  padding: 5px 8px;
+  border: 1px solid var(--main-color-light);
+  border-radius: 2px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.custom-sidebar label {
+  font-size: 16px;
+  color: var(--accent-blue);
+  font-family: var(--font-family);
+  margin-top: 14px;
+  font-weight: normal;
+}
+
+
+.custom-sidebar hr {
+  border-top: 2px solid var(--main-color);
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.custom-sidebar .radio label,
+.custom-sidebar .checkbox label {
+  font-family: var(--font-family);
+  font-weight: normal;
+  font-size: 16px;
+}
+
+.custom-sidebar .control-label {
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-weight: normal;
+  font-size: 20px;
+}
+
+.custom-sidebar h2 {
+  font-size: 80px;
+  color: var(--accent-blue);
+  font-family: 'urgc', 'Segoe UI', sans-serif;
 }
 

@@ -1,10 +1,13 @@
-library(shiny,quietly = T)
-library(dplyr,quietly = T)
-library(dagda,quietly = T)
-library(tibble,quietly = T)
+library(shiny)
+library(dplyr)
+library(dagda)
+library(tibble)
+library(shinyWidgets)
 
-test_data.clean <- readRDS(system.file("data/test_data.rds", package = "dagda"))
+test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
 filterable_columns <- c("part_of_speech", "gender")
+#choices_list = readRDS(here::here("data", "choice_list.rds"))
+
 
 generate_feedback_html <- function(word_row, correct = FALSE) {
   icon <- if (correct) "✅" else "❌"
@@ -14,106 +17,88 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
   HTML(paste0(
     "<div class='feedback-container ", css_class, "'>",
     "<div class='feedback-header'>", icon, " ", header, "</div>",
-    "<div class='feedback-entry'><strong>Gaeilge:</strong> <span class='ga-text'>", word_row$ga, "</span></div>",
-    "<div class='feedback-entry'><strong>Béarla:</strong> <span class='en-text'>", word_row$en, "</span></div>",
-    "<div class='feedback-entry'><strong>GinideachVN:</strong> <span class='genitive-text'>", word_row$genitiveVN, "</span></div>",
+    "<div class='feedback-entry'><h5><strong>Gaeilge:</h5></strong> <br> <span class='ga-text'>", word_row$ga, "</span></div>",
+    "<div class='feedback-entry'><h5><strong>Béarla:</strong></h5><br> <span class='en-text'>", word_row$en, "</span></div>",
+    "<div class='feedback-entry'><h5><strong>GinideachVN/Vern:</strong></h5><br> <span class='genitive-text'>", word_row$genitiveVN, "</span></div>",
     "</div>"
   ))
 }
 
-
 ui <- fluidPage(
-
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
   ),
 
+  titlePanel("dagda", windowTitle = "Dagda: Irish Knowledge Platform."),
 
-  titlePanel("Vocab Quiz "),
   sidebarLayout(
     sidebarPanel(
-      textInput("username", "Enter Username:", value = "comrad.casement"),
-      helpText("Press 'Enter Username' to load example user data or type your desired username."),
-      actionButton("save_user", "Enter Username"),
-      hr(),
-      numericInput("n_questions", "Number of Questions", value = 5, min = 5, step = 5),
-      hr(),
-      radioButtons("quiz_order_mode", "Order words by frequency:",
-                   choices = c("Ordered" = "ordered",
-                               "Random" = "random"),
-                   selected = "ordered", inline = TRUE),
-      hr(),
+      class = "custom-sidebar",
+      width = 4,
+      fluidRow(
+        column(8, textInput("username", "", value = "comrad.casement")),
+        column(4,
+               tags$div(style = "margin-top: 25px;font-family: urgc; font-size: 16px; padding: 1px;",
+                        actionButton("save_user", "Enter")))
+      ),
+      # fluidRow(
+      #   column(3, textInput("username", "", value = "comrad.casement")),
+      #   column(1, actionButton("save_user", "Enter", style = "font-family: urgc; font-size: 16px; padding: 1px;"))),
+
+      tags$hr(),
+      numericInput("n_questions", "Questions:", value = 5, min = 5, step = 5),
+      tags$hr(),
+      radioButtons("quiz_order_mode", "Order:",
+                   choices = c("Random" = "random", "Frequency" = "ordered"),
+                   selected = "random", inline = TRUE),
+      tags$hr(),
+      checkboxInput("enable_attrib_filter", "Focused Quiz", FALSE),
+
+      conditionalPanel(
+        condition = "input.enable_attrib_filter",
+        selectInput(
+          inputId = "attrib",
+          label = "Select for a focused quiz:",
+          choices = NULL,
+          multiple = TRUE)),
+
+      helpText("Use gender or POS to refine quiz."),
+      tags$hr(),
+
       conditionalPanel(
         condition = "input.quiz_order_mode == 'ordered'",
-        tagList(
-          radioButtons("rank_mode", "Order by frequency:",
-                       choices = c("Range" = "range", "Top Ranked" = "single", "None" = "none"),
-                       selected = "range", inline = TRUE),
+        radioButtons("rank_mode", "Rank/Frequency Filter:",
+                     choices = c("Range" = "range", "Most frequent" = "single", "None" = "none"),
+                     selected = "range", inline = TRUE),
 
-          conditionalPanel(
-            condition = "input.rank_mode == 'range'",
-            fluidRow(
-              column(2.5,
-                     numericInput("rank_range_min", "Start of Range:",
-                                  value = 0, min = 0, max = 7355, step=5)
-              ),
-              column(2.5,
-                     numericInput("rank_range_max", "End of Range:",
-                                  value = 5, min = 5, max = 7355, step = 5)
-              )
-            )
-          ),
+        conditionalPanel(
+          condition = "input.rank_mode == 'range'",
+          fluidRow(
+            column(6, numericInput("rank_range_min", "Start:", value = 0, min = 0, max = 7355, step = 5)),
+            column(6, numericInput("rank_range_max", "End:", value = 5, min = 5, max = 7355, step = 5))
+          )),
 
-          conditionalPanel(
-            condition = "input.rank_mode == 'single'",
-            numericInput("rank_value", "Enter Max Rank Value:",
-                         value = 7355, min = 1, max = 7355, step = 1)
-          ))),
+        conditionalPanel(
+          condition = "input.rank_mode == 'single'",
+          numericInput("rank_value", "Max % (e.g. top 6000 words):", value = 7355, min = 1, max = 7355, step = 1)
+        )
+      ),
 
-      textInput("keyword_search", "Keyword Search:", placeholder = "Enter keyword to filter questions"),
-      helpText("Include more words for limited results (e.g. Top Ranked = 7355)"),
-      hr(),
-      actionButton("start_quiz", "Start"),
-      verbatimTextOutput("quiz_status")
+      tags$hr(),
+      actionButton("start_quiz", "Start Quiz", class = "btn-primary"),
+      br(),
+     # verbatimTextOutput("quiz_status")
     ),
+
     mainPanel(
-     uiOutput("question_ui"),
-     hr(),
+      uiOutput("question_ui"),
+      tags$hr(),
       uiOutput("feedback_ui")
     )
   )
 )
 
 server <- function(input, output, session) {
-
-  start_quiz_logic <- function() {
-    req(state$word_scores)
-
-    quiz_data <- filtered_quiz_data()
-    if (is.null(quiz_data) || nrow(quiz_data) == 0) {
-      quiz$feedback <- "No valid words available after filtering."
-      quiz$complete <- TRUE
-      return()
-    }
-
-    if (input$quiz_order_mode == "random") {
-      quiz_data <- state$word_scores %>%
-        filter(!excluded, !is.na(ga), !is.na(en)) %>%
-        distinct(ga, .keep_all = TRUE) %>%
-        slice_sample(n = input$n_questions)
-    } else {
-      if (nrow(quiz_data) > input$n_questions) {
-        quiz_data <- quiz_data %>% slice_head(n = input$n_questions)
-      }
-    }
-
-    quiz$quiz_data <- quiz_data
-    quiz$last_quiz_words <- quiz_data
-    quiz$current_index <- 1
-    quiz$complete <- FALSE
-    quiz$feedback <- ""
-    quiz$session <- state
-  }
 
   state <- reactiveValues(
     word_scores = NULL,
@@ -128,19 +113,40 @@ server <- function(input, output, session) {
     complete = FALSE,
     last_quiz_words = NULL)
 
-  excluded_words <- reactiveVal(character())
-
-  wordbank <- test_data.clean
+  wordbank <- reactiveVal(test_data.clean)
 
   observeEvent(input$save_user, {
     req(input$username)
-    session_data <- load_user_scores(wordbank, username = input$username, interactive_mode = FALSE)
+    session_data <- load_user_scores(wordbank(), username = input$username, interactive_mode = FALSE)
     state$word_scores <- session_data$word_scores
     state$score_file <- session_data$score_file
     state$username <- input$username
     showNotification(paste("Loaded user data for", input$username), type = "message")
   })
 
+  observe({
+    wb <- wordbank()
+    req(wb)
+
+    gender_list <- sort(unique(unlist(strsplit(na.omit(wb$gender), '\n'))))
+    gender_list <- gender_list[gender_list != ""]
+    gender_list <- as.character(gender_list)
+
+    pos_list <- sort(unique(na.omit(wb$part_of_speech)))
+    pos_list <- as.character(pos_list)
+
+    choices <- c(
+      paste0("gender=", gender_list),
+      paste0("part_of_speech=", pos_list)
+    )
+
+    updateSelectInput(
+      session,
+      inputId = "attrib",
+      label = "",
+      choices = choices
+    )
+  })
 
   observe({
     req(input$rank_mode == "range", input$rank_range_min, input$n_questions)
@@ -148,55 +154,59 @@ server <- function(input, output, session) {
                        value = input$rank_range_min + input$n_questions)
   })
 
-
-  filtered_quiz_data <- reactive({
+  quiz_data <- reactive({
     req(state$word_scores)
+    data <- state$word_scores
 
-    selected_filters <- list()
-    for (col in filterable_columns) {
-      input_id <- paste0("filter_", col)
-      selected_vals <- input[[input_id]]
-      if (!is.null(selected_vals) && length(selected_vals) > 0) {
-        selected_filters[[col]] <- selected_vals
+    if (!is.null(input$attrib) && length(input$attrib) > 0) {
+      for (att in input$attrib) {
+        split_att <- strsplit(att, "=")[[1]]
+        col <- split_att[1]
+        val <- split_att[2]
+        data <- data[data[[col]] == val, ]
       }
     }
 
-    keyword <- tolower(trimws(input$keyword_search))
     rank_mode <- input$rank_mode
-
-    # Start with all words if rank_mode is "none", otherwise filter
-    if (rank_mode == "none") {
-      quiz_data <- state$word_scores
-    } else {
+    if (input$quiz_order_mode == "ordered" && rank_mode != "none") {
       rank_limit <- switch(rank_mode,
                            "single" = input$rank_value,
                            "range" = c(input$rank_range_min, input$rank_range_max))
-
-      # If rank_limit is still NULL here, error
-      if (is.null(rank_limit)) {
-        quiz$feedback <- "Invalid rank settings."
-        quiz$complete <- TRUE
-        return(NULL)
-      }
-
-
-      quiz_data <- filter_words(
-        state$word_scores,
-        rank_limit = rank_limit
-      )
+      data <- filter_words(data, rank_limit = rank_limit)
     }
 
-    # Apply keyword filter
-    if (nzchar(keyword)) {
-      quiz_data <- quiz_data %>%
-        filter(grepl(keyword, tolower(en)) | grepl(keyword, tolower(genitiveVN)))
-    }
-
-    # Final cleanup and return
-    quiz_data %>%
+    data %>%
       filter(!excluded, !is.na(ga), !is.na(en)) %>%
       distinct(ga, .keep_all = TRUE)
   })
+
+  filtered_quiz_data <- quiz_data
+
+  start_quiz_logic <- function() {
+    req(filtered_quiz_data())
+    quiz_data_df <- filtered_quiz_data()
+
+    if (is.null(quiz_data_df) || nrow(quiz_data_df) == 0) {
+      quiz$feedback <- "No valid words available after filtering."
+      quiz$complete <- TRUE
+      return()
+    }
+
+    if (input$quiz_order_mode == "random") {
+      quiz_data_df <- quiz_data_df %>% slice_sample(n = input$n_questions)
+    } else {
+      if (nrow(quiz_data_df) > input$n_questions) {
+        quiz_data_df <- quiz_data_df %>% slice_head(n = input$n_questions)
+      }
+    }
+
+    quiz$quiz_data <- quiz_data_df
+    quiz$last_quiz_words <- quiz_data_df
+    quiz$current_index <- 1
+    quiz$complete <- FALSE
+    quiz$feedback <- ""
+    quiz$session <- state
+  }
 
   observeEvent(input$start_quiz, {
     if (is.null(state$username)) {
@@ -205,7 +215,6 @@ server <- function(input, output, session) {
     }
     start_quiz_logic()
   })
-
 
   observeEvent(input$repeat_same_words, {
     if (is.null(quiz$last_quiz_words) || is.null(quiz$session)) {
@@ -221,13 +230,11 @@ server <- function(input, output, session) {
     showNotification("Restarted quiz with same words.", type = "message")
   })
 
-
-
-  output$quiz_status <- renderText({
-    if (quiz$complete) return(quiz$feedback)
-    if (is.null(quiz$quiz_data)) return("Waiting to start quiz...")
-    paste("Question", quiz$current_index, "of", nrow(quiz$quiz_data))
-  })
+  # output$quiz_status <- renderText({
+  #   if (quiz$complete) return(quiz$feedback)
+  #   if (is.null(quiz$quiz_data)) return("Waiting to start quiz...")
+  #   paste("Question", quiz$current_index, "of", nrow(quiz$quiz_data))
+  # })
 
   output$question_ui <- renderUI({
     req(quiz$quiz_data, !quiz$complete)
@@ -236,10 +243,10 @@ server <- function(input, output, session) {
     word <- quiz$quiz_data[quiz$current_index, "ga", drop = TRUE]
 
     tagList(
-      div(class = "card bg-light mb-3", style = "padding: 15px;",
-          strong("Translate this word from Irish:"),
-          h3(word),
-          textInput("user_answer", "Your Answer:"),
+      div(class = "card bg-light mb-3", style = "padding: 15px; text-color: #f8f4eb;",
+          h4("Translate this word from Irish:"),
+          h2(word),
+          h4(textInput("user_answer", "Your Answer:")),
           actionButton("submit_answer", "Submit Answer")
       )
     )
@@ -281,10 +288,6 @@ server <- function(input, output, session) {
       quiz$feedback <- generate_feedback_html(word_row, correct = FALSE)
     }
 
-    # When rendering in Shiny:
-    output$feedbackText <- renderUI({
-      HTML(quiz$feedback)
-    })
 
     quiz$current_index <- quiz$current_index + 1
 
@@ -355,11 +358,12 @@ server <- function(input, output, session) {
     req(quiz$feedback != "")
 
     current_word <- quiz$quiz_data[quiz$current_index - 1, "ga", drop = TRUE]
-    is_excluded <- current_word %in% excluded_words()
+    is_excluded <- current_word %in% state$word_scores$ga[state$word_scores$excluded]
+
 
     # Feedback text area with padding and background
     feedback_text <- div(
-      style = "padding: 15px; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 15px; font-size: 16px;",
+      style = "padding: 5px; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 15px; font-size: 16px;",
       HTML(quiz$feedback)
     )
 
@@ -413,22 +417,24 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$toggle_exclude_word, {
+    req(quiz$current_index > 1, quiz$quiz_data)
     current <- quiz$quiz_data[quiz$current_index - 1, "ga", drop = TRUE]
+
     if (is.null(current)) return()
 
-    current_excluded <- excluded_words()
+    # Find the current exclusion status from word_scores
+    is_current_excluded <- state$word_scores$excluded[state$word_scores$ga == current]
 
-    if (current %in% current_excluded) {
-      excluded_words(setdiff(current_excluded, current))
-      quiz$session$word_scores$excluded[quiz$session$word_scores$ga == current] <- FALSE
+    if (isTRUE(is_current_excluded)) {
+      # Un-exclude the word
+      state$word_scores$excluded[state$word_scores$ga == current] <- FALSE
       showNotification("✅ Word included again!", type = "message")
     } else {
-      excluded_words(c(current_excluded, current))
-      quiz$session$word_scores$excluded[quiz$session$word_scores$ga == current] <- TRUE
+      # Exclude the word
+      state$word_scores$excluded[state$word_scores$ga == current] <- TRUE
       showNotification("🚫 Word excluded!", type = "warning")
     }
-
-    saveRDS(state$word_scores, state$score_file)
-  })}
+  })
+}
 
 shinyApp(ui = ui, server = server)
