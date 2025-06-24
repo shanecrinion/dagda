@@ -7,7 +7,7 @@ source(here::here('R', "quiz_cli.R"))
 wordbank <- readRDS(here::here('data', 'test_data.rds'))
 
 run_quiz_cli(wordbank,
-             n_questions = 10,
+             n_questions = 10,rank_limit = c(10,20),
              selection_mode = "ordered")  # or "random" or "rank_range"
 
 # # Run quiz - use source for now but hope to optparse
