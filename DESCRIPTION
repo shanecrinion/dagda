@@ -16,6 +16,7 @@ Imports:
     dplyr,
     here,
     shiny,
+    stringr,
     tibble
 Depends: 
     R (>= 3.5.0)
