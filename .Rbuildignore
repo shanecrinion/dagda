@@ -1,3 +1,6 @@
+^renv$
+^inst/app/renv.lock$
+^renv\.lock$
 ^GaelLearnR\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$

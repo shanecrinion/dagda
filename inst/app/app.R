@@ -2,12 +2,10 @@ library(shiny)
 library(dplyr)
 library(dagda)
 library(tibble)
-library(shinyWidgets)
 
 test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
 filterable_columns <- c("part_of_speech", "gender")
 #choices_list = readRDS(here::here("data", "choice_list.rds"))
-
 
 generate_feedback_html <- function(word_row, correct = FALSE) {
   icon <- if (correct) "✅" else "❌"
