@@ -4,8 +4,6 @@ library(dagda)
 library(tibble)
 
 test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
-filterable_columns <- c("part_of_speech", "gender")
-#choices_list = readRDS(here::here("data", "choice_list.rds"))
 
 generate_feedback_html <- function(word_row, correct = FALSE) {
   icon <- if (correct) "✅" else "❌"
@@ -22,10 +20,26 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
   ))
 }
 
-ui <- fluidPage(
-  tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
-  ),
+
+  ui <- fluidPage(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+      tags$script(HTML("
+      // Pressing Enter in #username triggers #save_user
+      $(document).on('keypress', '#username', function(e) {
+        if (e.which == 13) {
+          $('#save_user').click();
+        }
+      });
+
+      // Pressing Enter in #user_answer triggers #submit_answer
+      $(document).on('keypress', '#user_answer', function(e) {
+        if (e.which == 13) {
+          $('#submit_answer').click();
+        }
+      });
+    "))
+    ),
 
   titlePanel("dagda", windowTitle = "Dagda: Irish Knowledge Platform."),
 
@@ -44,30 +58,17 @@ ui <- fluidPage(
       #   column(1, actionButton("save_user", "Enter", style = "font-family: urgc; font-size: 16px; padding: 1px;"))),
 
       tags$hr(),
-      numericInput("n_questions", "Questions:", value = 5, min = 5, step = 5),
+      numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
       tags$hr(),
       radioButtons("quiz_order_mode", "Order:",
                    choices = c("Random" = "random", "Frequency" = "ordered"),
-                   selected = "random", inline = TRUE),
-      tags$hr(),
-      checkboxInput("enable_attrib_filter", "Focused Quiz", FALSE),
-
-      conditionalPanel(
-        condition = "input.enable_attrib_filter",
-        selectInput(
-          inputId = "attrib",
-          label = "Select for a focused quiz:",
-          choices = NULL,
-          multiple = TRUE)),
-
-      helpText("Use gender or POS to refine quiz."),
-      tags$hr(),
+                   selected = "random", inline = F),
 
       conditionalPanel(
         condition = "input.quiz_order_mode == 'ordered'",
-        radioButtons("rank_mode", "Rank/Frequency Filter:",
-                     choices = c("Range" = "range", "Most frequent" = "single", "None" = "none"),
-                     selected = "range", inline = TRUE),
+        radioButtons("rank_mode", "Frequency Filter:",
+                     choices = c("Rank range" = "range", "Most frequent" = "single", "No filter" = "none"),
+                     selected = "range", inline = F),
 
         conditionalPanel(
           condition = "input.rank_mode == 'range'",
@@ -78,9 +79,18 @@ ui <- fluidPage(
 
         conditionalPanel(
           condition = "input.rank_mode == 'single'",
-          numericInput("rank_value", "Max % (e.g. top 6000 words):", value = 7355, min = 1, max = 7355, step = 1)
+          numericInput("rank_value", "Enter ceiling number (i.e. top 100 or 10% of words):", value = 7355, min = 1, max = 7355, step = 1)
         )
       ),
+      tags$hr(),
+      checkboxInput("enable_attrib_filter", label = tags$span("Focused Quiz?", class = "form-label"), value = FALSE),
+      conditionalPanel(
+        condition = "input.enable_attrib_filter",
+        selectInput(
+          inputId = "attrib",
+          label = "Select for a focused quiz:",
+          choices = NULL,
+          multiple = TRUE)),
 
       tags$hr(),
       actionButton("start_quiz", "Start Quiz", class = "btn-primary"),
@@ -240,19 +250,19 @@ server <- function(input, output, session) {
 
     word <- quiz$quiz_data[quiz$current_index, "ga", drop = TRUE]
 
-    tagList(
-      div(class = "card bg-light mb-3", style = "padding: 15px; text-color: #f8f4eb;",
-          h4("Translate this word from Irish:"),
-          h2(word),
-          h4(textInput("user_answer", "Your Answer:")),
-          actionButton("submit_answer", "Submit Answer")
+    tagList(#40637c
+      div(class = "card bg-light mb-3", style = "padding: 15px;",
+          h2("Irish:",class = "prompt-label", style = "margin-bottom: 10px; color: #2d2926"),
+          h2(word, style = "margin-bottom: 5px; font-family: 'Fira Code', monospace; color: #40637c"),
+          h4(textInput("user_answer", "",placeholder = 'Enter English translation..'),style = "margin-bottom: 10px; color: #2d2926; font-family: 'Fira Code', monospace; color: #40637c"),
+          actionButton("submit_answer", "Submit")
       )
     )
   })
 
   observeEvent(input$submit_answer, {
     req(quiz$quiz_data, input$user_answer)
-
+    user_input <- isolate(input$user_answer)
     word_row <- quiz$quiz_data[quiz$current_index, ]
     answer <- trimws(tolower(input$user_answer))
     correct <- !is.na(word_row$en) && answer == tolower(word_row$en)

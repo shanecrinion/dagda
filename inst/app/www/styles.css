@@ -60,7 +60,7 @@ input[type="number"] {
 /* Align question & feedback UI */
 #question_ui, #feedback_ui {
   padding: 10px;
-  background-color: var(--background-color)
+  background-color: var(--accent-blue)
   border-radius: 8px;
 }
 
@@ -188,6 +188,7 @@ a:hover {
   box-sizing: border-box;
 }
 
+
 .custom-sidebar label {
   font-size: 16px;
   color: var(--accent-blue);
@@ -203,13 +204,19 @@ a:hover {
   margin-bottom: 20px;
 }
 
-.custom-sidebar .radio label,
-.custom-sidebar .checkbox label {
-  font-family: var(--font-family);
+
+.custom-sidebar .radio label {
+  font-family: 'urgc', 'Segoe UI', sans-serif;
   font-weight: normal;
   font-size: 16px;
 }
 
+
+.custom-sidebar .checkbox label {
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-weight: normal;
+  font-size: 16px;
+}
 .custom-sidebar .control-label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
   font-weight: normal;
@@ -222,3 +229,8 @@ a:hover {
   font-family: 'urgc', 'Segoe UI', sans-serif;
 }
 
+.form-label {
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-weight: normal;
+  font-size: 16px;
+}
