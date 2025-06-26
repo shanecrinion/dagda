@@ -3,22 +3,22 @@ library(dplyr)
 library(dagda)
 library(tibble)
 
-test_data.clean <- readRDS(system.file("data/test_data_clean.rds", package = "dagda"))
-
+test_data.clean <- readRDS(system.file("data/test_data.rds", package = "dagda"))
 generate_feedback_html <- function(word_row, correct = FALSE) {
-  icon <- if (correct) "✅" else "❌"
-  header <- if (correct) "Correct!" else "Incorrect!"
+  icon <- if (correct) "✔" else "✗"
+  header <- if (correct) "Maith thú!" else "Mícheart"
   css_class <- if (correct) "correct" else "incorrect"
 
   HTML(paste0(
     "<div class='feedback-container ", css_class, "'>",
-    "<div class='feedback-header'>", icon, " ", header, "</div>",
-    "<div class='feedback-entry'><h5><strong>Gaeilge:</h5></strong> <br> <span class='ga-text'>", word_row$ga, "</span></div>",
-    "<div class='feedback-entry'><h5><strong>Béarla:</strong></h5><br> <span class='en-text'>", word_row$en, "</span></div>",
-    "<div class='feedback-entry'><h5><strong>GinideachVN/Vern:</strong></h5><br> <span class='genitive-text'>", word_row$genitiveVN, "</span></div>",
+    "<div class='feedback-header'>", icon, " <strong>", header, "</strong></div>",
+    "<div class='feedback-entry'><span class='ga-label'>Gaeilge:</span> <span class='ga-text'>", word_row$ga, "</span></div>",
+    "<div class='feedback-entry'><span class='en-label'>English:</span> <span class='en-text'>", word_row$en, "</span></div>",
+    "<div class='feedback-entry'><span class='genitive-label'>GinideachVN/Vern:</span><br> <span class='genitive-text'>", word_row$genitiveVN, "</span></div>",
     "</div>"
   ))
 }
+
 
 
   ui <- fluidPage(
@@ -48,11 +48,12 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
       class = "custom-sidebar",
       width = 4,
       fluidRow(
-        column(8, textInput("username", "", value = "comrad.casement")),
+        column(7, textInput("username", "", value = "comrad.casement")),
         column(4,
                tags$div(style = "margin-top: 25px;font-family: urgc; font-size: 16px; padding: 1px;",
                         actionButton("save_user", "Enter")))
       ),
+      helpText('Type username or press Enter to load example.'),
       # fluidRow(
       #   column(3, textInput("username", "", value = "comrad.casement")),
       #   column(1, actionButton("save_user", "Enter", style = "font-family: urgc; font-size: 16px; padding: 1px;"))),
@@ -99,9 +100,8 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
     ),
 
     mainPanel(
-      uiOutput("question_ui"),
-      tags$hr(),
-      uiOutput("feedback_ui")
+      fluidRow(column(6,uiOutput("question_ui")),
+              column(6, uiOutput("feedback_ui")))
     )
   )
 )
@@ -251,10 +251,10 @@ server <- function(input, output, session) {
     word <- quiz$quiz_data[quiz$current_index, "ga", drop = TRUE]
 
     tagList(#40637c
-      div(class = "card bg-light mb-3", style = "padding: 15px;",
-          h2("Irish:",class = "prompt-label", style = "margin-bottom: 10px; color: #2d2926"),
-          h2(word, style = "margin-bottom: 5px; font-family: 'Fira Code', monospace; color: #40637c"),
-          h4(textInput("user_answer", "",placeholder = 'Enter English translation..'),style = "margin-bottom: 10px; color: #2d2926; font-family: 'Fira Code', monospace; color: #40637c"),
+      div(class = "card bg-light mb-3", style = "padding: 5px; bord",
+          h3("Irish:" ,class = "prompt-label", style = "margin-bottom: 5px; color: var(--accent-cream);"),
+          h3(word, style = "margin-bottom: 5px; font-family: 'Fira Code', monospace; color: var(--background-color); "),
+          h4(textInput("user_answer", "",placeholder = 'Enter English translation..'),style = "margin-bottom: 10px; color: var(--accent-cream); font-family: 'Fira Code', monospace;"),
           actionButton("submit_answer", "Submit")
       )
     )
@@ -371,7 +371,7 @@ server <- function(input, output, session) {
 
     # Feedback text area with padding and background
     feedback_text <- div(
-      style = "padding: 5px; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 15px; font-size: 16px;",
+  #    style = "padding: 5px; background-color: #f8f9fa; border-radius: 8px; margin-bottom: 15px; font-size: 16px;",
       HTML(quiz$feedback)
     )
 

@@ -10,6 +10,8 @@
   --main-color: #4d6631;          /* Earthy green, softer */
   --main-color-light: #91a96e;    /* Lightened complementary green */
   --background-color: #e6eedf;    /* Mossy, less dark */
+  --accent-lilac: #a39bbd;         /* Bell heather or foxglove-lilac */
+  --accent-cream: #f7f4ed;         /* Irish mist / foggy cream sky */
   --text-color: #2d2926;          /* Dark neutral for legibility */
   --accent-red: #7c2b27;          /* Deep muted red */
   --accent-blue: #40637c;         /* Slate blue */
@@ -21,7 +23,6 @@
   --heading-size: 2rem;
 }
 
-
 /* Smaller numeric inputs */
 input[type="number"] {
   font-family: 'Fira Code', monospace;
@@ -30,51 +31,39 @@ input[type="number"] {
 
 /* Buttons */
 .btn {
-  padding: 2px 10px;
-  font-size: 9px;
-  background-color: var(--accent-red);
-  color: var(--accent-blue);
-  border: 1px solid var(--main-color-light);
-  border-radius: 4px;
-}
-.btn:hover {
   background-color: var(--main-color-light);
-  color: var(--background-color);
+  border-color: var(--main-color);
+  color: var(--accent-cream);
+  box-shadow: 0 0 5px var(--main-color);
 }
 
-
-/* Buttons */
-.btn {
-  background-color: var(--accent-blue);
-  border-color: var(--accent-blue);
-  color: #FFFFFF;
-}
 .btn:hover,
 .btn:focus {
-  background-color: var(--accent-blue);
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 5px var(--accent-gold);
+  background-color: var(--main-color-light);
+  border-color: var(--main-color);
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  color: var(--accent-cream);
 }
 
 
 /* Align question & feedback UI */
 #question_ui, #feedback_ui {
   padding: 10px;
-  background-color: var(--accent-blue)
+  background-color: var(--main-color);
   border-radius: 8px;
 }
 
 /* Make UI elements compact on mainPanel too */
 .mainPanel {
   padding-left: 20px;
-  background-color: var(--main-color);
+  background-color: #91a96e;
   color: var(--text-color);
 }
 
 
 /* Body and general layout */
 body {
-  background-color: var(--background-color);
+  background-color: var(--accent-blue);
   color: var(--text-color);
   font-family:'Segoe UI', sans-serif;
 }
@@ -82,18 +71,29 @@ body {
 /* Headers */
 h1 {
   font-size: 100px;
-  color: var(--accent-blue);
+  color: var(--accent-cream);
   font-family: 'urgc', 'Segoe UI', sans-serif;
 }
 
 
-h2, h3, h4, h5 {
+h2 {
+  font-size: 70px;
+  color: var(--accent-cream);
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+  text-align: center;
+}
+
+h3, h4 {
   font-size: 40px;
-  color: var(--accent-blue);
+  color: var(--accent-cream);
   font-family: 'urgc', 'Segoe UI', sans-serif;
 }
 
-
+h5 {
+  font-size: 20px;
+  color: var(--accent-cream);
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+}
 
 /* Navbar (if used) */
 .navbar, .navbar-default {
@@ -111,7 +111,7 @@ input[type="text"]:focus,
 select:focus,
 textarea:focus,
 .form-control:focus {
-  border-color: var(--accent-gold);
+  border-color: var(--accent-lilac);
   font-family: 'Fira Code', monospace;
   box-shadow: 0 0 5px var(--accent-gold);
 }
@@ -142,27 +142,30 @@ a:hover {
 
 /* Feedback */
 .feedback-container {
-  border-left: 5px solid var(--main-color);
-  background-color: #eef1e9;
+  border-left: 10px solid var(--accent-gold);
+  background-color: #91a96e;
+  color: #FFFFFF;
+  border-radius: 0;
 }
 
 /* Font sizing */
 .feedback-container, .form-control, .btn {
   font-size: 16px;
+  font-family: 'Fira Code', monospace;
 }
 
 
 /* === Custom Sidebar Panel Styling === */
 .custom-sidebar {
-  background-color: var(--background-color);
+  background-color: var(--main-color);
   border-radius: 0;
-  color: var(--text-color);
+  color: var(--accent-cream);
   padding: 10px;
   border-right: 1px solid var(--main-color);
   border-left: 0px;
   border-bottom: 0px;
   border-top: 0px;
-  box-shadow: 0 0 5px var(--accent-gold);
+  box-shadow: 0 0 5px var(--main-color);
   min-height: 100vh; /* Optional: makes it full-height */
   font-family: 'Fira Code', monospace;
 }
@@ -181,7 +184,7 @@ a:hover {
   color: var(--accent-blue);
   font-family: 'Fira Code', monospace;
   font-size: 14px;
-  padding: 5px 8px;
+  padding: 5px 6px;
   border: 1px solid var(--main-color-light);
   border-radius: 2px;
   width: 100%;
@@ -191,7 +194,7 @@ a:hover {
 
 .custom-sidebar label {
   font-size: 16px;
-  color: var(--accent-blue);
+  color: var(--accent-cream);
   font-family: var(--font-family);
   margin-top: 14px;
   font-weight: normal;
@@ -199,7 +202,7 @@ a:hover {
 
 
 .custom-sidebar hr {
-  border-top: 2px solid var(--main-color);
+  border-top: 2px solid var(--main-color-light);
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -207,6 +210,7 @@ a:hover {
 
 .custom-sidebar .radio label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
+  color: var(--accent-cream);
   font-weight: normal;
   font-size: 16px;
 }
@@ -214,11 +218,13 @@ a:hover {
 
 .custom-sidebar .checkbox label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
+  color: var(--accent-cream);
   font-weight: normal;
   font-size: 16px;
 }
 .custom-sidebar .control-label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
+  color: var(--accent-cream);
   font-weight: normal;
   font-size: 20px;
 }
@@ -234,3 +240,43 @@ a:hover {
   font-weight: normal;
   font-size: 16px;
 }
+
+.ga-label {
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-weight: bold;
+  font-size: 20px;
+  color:#FFFFFF;
+}
+
+.ga-text {
+  font-family: 'Fira Code', monospace;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+.en-label {
+  font-family: var(--font-family);
+  font-weight: bold;
+  font-size: 20px;
+  color: #FFFFFF;
+}
+
+.en-text {
+  font-family: 'Fira Code', monospace;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+.genitive-label {
+  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-weight: bold;
+  font-size: 20px;
+  color: #FFFFFF;
+}
+
+.genitive-text {
+  font-family: var(--font-family);
+  color: #FFFFFF;
+}
+
+

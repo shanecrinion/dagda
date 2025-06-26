@@ -16,7 +16,9 @@ Imports:
     dplyr,
     here,
     shiny,
-    tibble
+    tibble,
+    xml2,
+    rvest
 Depends: 
     R (>= 3.5.0)
 LazyData: true
