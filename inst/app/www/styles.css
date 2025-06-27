@@ -5,7 +5,6 @@
   font-style: normal;
 }
 
-
 :root {
   --main-color: #4d6631;          /* Earthy green, softer */
   --main-color-light: #91a96e;    /* Lightened complementary green */
@@ -29,10 +28,21 @@ input[type="number"] {
   max-width: 100%;
 }
 
+
+.user-row {
+  background-color: var(--accent-blue);
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0;
+  padding-right: 0;
+}
+.row {
+  background-color: var(--accent-cream); }
+
 /* Buttons */
 .btn {
   background-color: var(--main-color-light);
-  border-color: var(--main-color);
+  border-color: var(--main-color-light);
   color: var(--accent-cream);
   box-shadow: 0 0 5px var(--main-color);
 }
@@ -46,24 +56,35 @@ input[type="number"] {
 }
 
 
-/* Align question & feedback UI */
-#question_ui, #feedback_ui {
-  padding: 10px;
+#question_ui {
+  padding: 5px;
   background-color: var(--main-color);
-  border-radius: 8px;
+  border-radius: 0px;
 }
+
+/* Align question & feedback UI */
+#feedback_ui {
+  padding: 5px;
+  border-left: 0px;
+  border-right: 0px;
+  background-color: var(--accent-red);
+  border-radius: 0px;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
 
 /* Make UI elements compact on mainPanel too */
 .mainPanel {
-  padding-left: 20px;
-  background-color: #91a96e;
+  padding-left: 10px;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  background-color: var(--main-colour-light);
   color: var(--text-color);
 }
 
 
 /* Body and general layout */
 body {
-  background-color: var(--accent-blue);
+  background-color: var(--accent-cream);
   color: var(--text-color);
   font-family:'Segoe UI', sans-serif;
 }
@@ -81,18 +102,24 @@ h2 {
   color: var(--accent-cream);
   font-family: 'urgc', 'Segoe UI', sans-serif;
   text-align: center;
+  padding: 0px;
+  margin-bottom: 30px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top 0px;
+  background-color: var(--accent-blue);
 }
 
 h3, h4 {
   font-size: 40px;
   color: var(--accent-cream);
-  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-family: 'Fira Code', monospace;
 }
 
 h5 {
   font-size: 20px;
   color: var(--accent-cream);
-  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-family: 'Fira Code', monospace;
 }
 
 /* Navbar (if used) */
@@ -142,38 +169,50 @@ a:hover {
 
 /* Feedback */
 .feedback-container {
-  border-left: 10px solid var(--accent-gold);
-  background-color: #91a96e;
-  color: #FFFFFF;
+  margin-top: 0px;
+  border-left: 0px solid var(--accent-lilac);
+  background-color: var(--accent-red);
   border-radius: 0;
+  padding: 0px;
+  border-right: 0px;
 }
 
 /* Font sizing */
 .feedback-container, .form-control, .btn {
-  font-size: 16px;
+  font-size: 12px;
   font-family: 'Fira Code', monospace;
+  border-radius: 0;
 }
 
+.silly {
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
 
 /* === Custom Sidebar Panel Styling === */
 .custom-sidebar {
-  background-color: var(--main-color);
+  background-color: var(--accent-blue);
   border-radius: 0;
   color: var(--accent-cream);
   padding: 10px;
+  border-top: 0px;
   border-right: 1px solid var(--main-color);
   border-left: 0px;
   border-bottom: 0px;
   border-top: 0px;
-  box-shadow: 0 0 5px var(--main-color);
   min-height: 100vh; /* Optional: makes it full-height */
   font-family: 'Fira Code', monospace;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 
 .custom-sidebar label,
 .custom-sidebar .form-group {
   margin-bottom: 0.5rem;
+  background-color: var(--accent-blue);
+
 }
 
 .custom-sidebar input,
@@ -183,10 +222,11 @@ a:hover {
   background-color: #FFFFFF;
   color: var(--accent-blue);
   font-family: 'Fira Code', monospace;
-  font-size: 14px;
-  padding: 5px 6px;
+  font-size: 16px;
+  text-align: center;
+  padding: 0px 0px;
   border: 1px solid var(--main-color-light);
-  border-radius: 2px;
+  border-radius: 1px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -209,7 +249,7 @@ a:hover {
 
 
 .custom-sidebar .radio label {
-  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-family: 'Fira Code', monospace;
   color: var(--accent-cream);
   font-weight: normal;
   font-size: 16px;
@@ -217,7 +257,7 @@ a:hover {
 
 
 .custom-sidebar .checkbox label {
-  font-family: 'urgc', 'Segoe UI', sans-serif;
+  font-family: var(--font-family);
   color: var(--accent-cream);
   font-weight: normal;
   font-size: 16px;
@@ -225,8 +265,9 @@ a:hover {
 .custom-sidebar .control-label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
   color: var(--accent-cream);
-  font-weight: normal;
+  font-weight: bold;
   font-size: 20px;
+  margin-left: 8px;
 }
 
 .custom-sidebar h2 {
@@ -237,33 +278,37 @@ a:hover {
 
 .form-label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
-  font-weight: normal;
-  font-size: 16px;
+  font-weight: bold;
+  font-size: 20px;
+  margin-left: -10px;
 }
+
 
 .ga-label {
   font-family: 'urgc', 'Segoe UI', sans-serif;
   font-weight: bold;
   font-size: 20px;
-  color:#FFFFFF;
+  color:var(--accent-cream)
 }
 
 .ga-text {
   font-family: 'Fira Code', monospace;
   font-weight: normal;
   font-size: 16px;
+  color: var(--accent-cream);
 }
 
 .en-label {
-  font-family: var(--font-family);
+  font-family: var(--font-code);
   font-weight: bold;
   font-size: 20px;
-  color: #FFFFFF;
+  color:var(--accent-cream);
 }
 
 .en-text {
   font-family: 'Fira Code', monospace;
   font-weight: normal;
+  color: var(--accent-cream);
   font-size: 16px;
 }
 
@@ -271,12 +316,41 @@ a:hover {
   font-family: 'urgc', 'Segoe UI', sans-serif;
   font-weight: bold;
   font-size: 20px;
-  color: #FFFFFF;
+  color: var(--accent-cream);
 }
 
 .genitive-text {
-  font-family: var(--font-family);
-  color: #FFFFFF;
+  font-family: var(--font-code);
+  color: var(--accent-cream);
 }
 
+
+.custom-sidebar {
+  overflow-x: hidden;
+}
+.user-row {
+  background-color: var(--accent-blue);
+  text-align: center;
+}
+
+.ranker {
+  background-color: var(--accent-blue);
+  font-family: 'Fira Code', monospace;
+}
+
+.feedback-header{
+  font-size: 2rem;
+  text-align: center;
+  color: var(--accent-cream);
+  font-family: var(--font-code);
+}
+
+.well{
+   padding-top: 0px;
+   padding-left: 0px;
+   padding-right: 0px;
+    padding-bottom: 0px;
+  border: 0px;
+  overflow-x: hidden;
+}
 
