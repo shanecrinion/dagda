@@ -12,9 +12,9 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
   HTML(paste0(
     "<div class='feedback-container ", css_class, "'>",
     "<div class='feedback-header'>", icon, " <strong>", header, "</strong></div>",
-    "<div class='feedback-entry'><span class='ga-label'>Gaeilge:</span> <span class='ga-text'>", word_row$ga, "</span><br></div>",
-    "<div class='feedback-entry'><span class='en-label'>English:</span> <span class='en-text'>", word_row$en, "</span><br></div>",
-    "<div class='feedback-entry'><span class='genitive-label'>Notes:</span><br> <span class='genitive-text'>", word_row$genitiveVN, "</span><br></div>",
+    "<div class='feedback-entry'><span class='ga-label'><br>Gaeilge:</span> <span class='ga-text'>", word_row$ga, "</span><br></div>",
+    "<div class='feedback-entry'><span class='en-label'><br>English:<br></span> <span class='en-text'>", word_row$en, "</span><br></div>",
+    "<div class='feedback-entry'><span class='genitive-label'><br>Notes:</span><br> <span class='genitive-text'>", word_row$genitiveVN, "</span><br></div>",
     "</div>"
   ))
 }
@@ -48,7 +48,7 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
       fluidRow(class = "user-row",
         column(8, textInput("username", "", value = "comrad.casement")),
         column(4,
-               tags$div(style = "color: var(--accent-blue); margin-top: 22px;font-family: urgc; font-size: 16px; padding 0px;",
+               tags$div(style = "color: var(--accent-blue); margin-top: 22px;font-family: urgc; font-size: 16px; padding 2px;",
                         actionButton("save_user", "Enter")))
       ),
       tags$small(
@@ -60,12 +60,12 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
       #   column(1, actionButton("save_user", "Enter", style = "font-family: urgc; font-size: 16px; padding: 1px;"))),
 
       tags$hr(),
-      numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
-      tags$hr(),
-      radioButtons("quiz_order_mode", "Order:",
-                   choices = c("Random" = "random", "Frequency" = "ordered"),
-                   selected = "random", inline = F),
-
+      fluidRow(class='questions',
+               column(6, numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
+               ),
+               column(6,       radioButtons("quiz_order_mode", "Order:",
+                                         choices = c("Random" = "random", "Frequency" = "ordered"),
+                                         selected = "random", inline = F))),
       conditionalPanel(
         condition = "input.quiz_order_mode == 'ordered'",
         radioButtons("rank_mode", "Frequency Filter:",
