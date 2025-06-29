@@ -2,8 +2,10 @@ library(shiny)
 library(dplyr)
 library(dagda)
 library(tibble)
+library(stringr)
 
-test_data.clean <- readRDS(system.file("data/test_data.rds", package = "dagda"))
+test_data.clean <- readRDS(here::here('data', "test_data_extra_tearma.rds"))
+
 generate_feedback_html <- function(word_row, correct = FALSE) {
   icon <- if (correct) "✔" else "✗"
   header <- if (correct) "Maith thú!" else "Mícheart!"
@@ -13,8 +15,9 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
     "<div class='feedback-container ", css_class, "'>",
     "<div class='feedback-header'>", icon, " <strong>", header, "</strong></div>",
     "<div class='feedback-entry'><span class='ga-label'><br>Gaeilge:</span> <span class='ga-text'>", word_row$ga, "</span><br></div>",
-    "<div class='feedback-entry'><span class='en-label'><br>English:<br></span> <span class='en-text'>", word_row$en, "</span><br></div>",
+    "<div class='feedback-entry'><span class='en-label'><br>English:</span> <span class='en-text'>", word_row$main_term, "</span><br></div>",
     "<div class='feedback-entry'><span class='genitive-label'><br>Notes:</span><br> <span class='genitive-text'>", word_row$genitiveVN, "</span><br></div>",
+    "<div class='feedback-entry'><span class='genitive-label'><br>Example:</span><br> <span class='genitive-text'>", word_row$en_example, "</span><br></div>",
     "</div>"
   ))
 }
@@ -44,7 +47,7 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
   sidebarLayout(
     sidebarPanel(
       class = "custom-sidebar",
-      width = 4,
+      width = 3,
       fluidRow(class = "user-row",
         column(8, textInput("username", "", value = "comrad.casement")),
         column(4,
@@ -52,20 +55,21 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
                         actionButton("save_user", "Enter")))
       ),
       tags$small(
-        style = "margin-left: 8px; margin-right: 8px; margin-top: 8px; font-family: 'Fira Code', monospace; color: var(--accent-cream); font-size: 12px;",
-        "Type username or press Enter to load example."
+        style = "text-align: center; padding: 5px; margin: 5px; font-family: 'Fira Code', monospace; color: var(--accent-cream); font-size: 12px;",
+        "Type username or press Enter for example"
       ),
       # fluidRow(
       #   column(3, textInput("username", "", value = "comrad.casement")),
       #   column(1, actionButton("save_user", "Enter", style = "font-family: urgc; font-size: 16px; padding: 1px;"))),
 
       tags$hr(),
-      fluidRow(class='questions',
-               column(6, numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
-               ),
-               column(6,       radioButtons("quiz_order_mode", "Order:",
+      #class='questions',
+      #          column(7,
+                      radioButtons("quiz_order_mode", "Order:",
                                          choices = c("Random" = "random", "Frequency" = "ordered"),
-                                         selected = "random", inline = F))),
+                                         selected = "random", inline = F),
+      #column(4,
+      # )),
       conditionalPanel(
         condition = "input.quiz_order_mode == 'ordered'",
         radioButtons("rank_mode", "Frequency Filter:",
@@ -81,10 +85,12 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
 
         conditionalPanel(
           condition = "input.rank_mode == 'single'",
-          numericInput("rank_value", "Enter value (i.e. 100 = top 100 words, 10% = top 10%):", value = 100, min = 100, max = 7355, step = 5)
+          numericInput("rank_value", "Enter value:", value = 100, min = 100, max = 7355, step = 5),
+          helpText('Enter 100 for top 100 words or 10% for top 10% of words (n=7010)', style='color: --var(accent-cream);')
         )
       ),
       tags$hr(),
+      numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
       checkboxInput("enable_attrib_filter", label = tags$span("Focused Quiz?", class = "form-label"), value = FALSE),
       conditionalPanel(
         condition = "input.enable_attrib_filter",
@@ -96,7 +102,6 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
 
       tags$hr(),
       actionButton("start_quiz", "Start Quiz", class = "btn-primary"),
-      br(),
      # verbatimTextOutput("quiz_status")
     ),
 
@@ -137,9 +142,12 @@ server <- function(input, output, session) {
     wb <- wordbank()
     req(wb)
 
-    gender_list <- sort(unique(unlist(strsplit(na.omit(wb$gender), '\n'))))
+    gender_list <- str_trim(sort(unique(unlist(strsplit(na.omit(wb$gender_clean), ',')))))
     gender_list <- gender_list[gender_list != ""]
-    gender_list <- as.character(gender_list)
+    #remove some troublesome words
+    mistakes <-  c('f2', 'nf3', 'ag seinm', 'mn1','nm2', 'm')
+    gender_list <- gender_list[!gender_list %in% mistakes]
+    gender_list <- as.character(sort(gender_list))
 
     pos_list <- sort(unique(na.omit(wb$part_of_speech)))
     pos_list <- as.character(pos_list)
@@ -148,6 +156,7 @@ server <- function(input, output, session) {
       paste0("gender=", gender_list),
       paste0("part_of_speech=", pos_list)
     )
+
 
     updateSelectInput(
       session,
@@ -251,14 +260,23 @@ server <- function(input, output, session) {
 
     word <- quiz$quiz_data[quiz$current_index, "ga", drop = TRUE]
 
-    tagList(#40637c
-      div(class = "card bg-light mb-3", style = "padding: 0px; box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);",
-          h3("Irish: " , class = "prompt-label", style = "margin-left: 5px; font-size: 2rem; color: var(--accent-cream);"),
-          h3(word, style = "margin-bottom: 5px; font-family: 'Fira Code', monospace; color: var(--accent-cream); font-size: 2rem; "),
-          h4(textInput("user_answer", "",placeholder = 'Enter English translation..'),style = "margin-bottom: 10px; color: var(--accent-cream); font-family: 'Fira Code', monospace;"),
-          actionButton("submit_answer", "Submit")
+    tagList(
+      # Flex container for horizontal alignment
+      div(
+        style = "display: flex; align-items: baseline; gap: 8px; margin-left: 5px; margin-bottom: 5px;",
+        h3("Irish:", class = "prompt-label",
+           style = "font-size: 2rem; color: #7a6248;"),
+        h3(word,
+           style = "font-size: 2rem; font-family: 'Fira Code', monospace; color: #7a6248;")
+      ),
+      div(
+        style = "display: flex; align-items: center; gap: 10px; margin-left: 5px; margin-bottom: 10px;",
+        textInput("user_answer", "", placeholder = "Enter English translation..",
+                  width = "300px"),  # Optional: control width
+        actionButton("submit_answer", "Submit")
       )
     )
+
   })
 
   observeEvent(input$submit_answer, {
@@ -394,10 +412,11 @@ server <- function(input, output, session) {
       if (!is.null(quiz$last_quiz_words)) {
         buttons_list <- c(buttons_list,
                           fluidRow(
-                            column(12,
+                            column(6,
                                    actionButton("repeat_same_words", "🔁 Same Words Again?", class = "btn btn-primary btn-block",
                                                 disabled = is.null(quiz$last_quiz_words))
-                            )
+                            ),
+                            column(6, actionButton("repeat_same_words", "Repeat Same Quiz"))
                           )
         )
       }
