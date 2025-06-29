@@ -4,20 +4,20 @@ library(dagda)
 library(tibble)
 library(stringr)
 
-test_data.clean <- readRDS(here::here('data', "test_data_extra_tearma.rds"))
+test_data.clean <- readRDS(here::here('data', "test_data.rds"))
 
 generate_feedback_html <- function(word_row, correct = FALSE) {
-  icon <- if (correct) "✔" else "✗"
+  icon <- if (correct) "🎈" else "💀"
   header <- if (correct) "Maith thú!" else "Mícheart!"
   css_class <- if (correct) "correct" else "incorrect"
 
   HTML(paste0(
     "<div class='feedback-container ", css_class, "'>",
-    "<div class='feedback-header'>", icon, " <strong>", header, "</strong></div>",
+    "<div class='feedback-header' style='color: #4a2e4a;'>", icon, " <strong>", header, "</strong></div>",
     "<div class='feedback-entry'><span class='ga-label'><br>Gaeilge:</span> <span class='ga-text'>", word_row$ga, "</span><br></div>",
     "<div class='feedback-entry'><span class='en-label'><br>English:</span> <span class='en-text'>", word_row$main_term, "</span><br></div>",
     "<div class='feedback-entry'><span class='genitive-label'><br>Notes:</span><br> <span class='genitive-text'>", word_row$genitiveVN, "</span><br></div>",
-    "<div class='feedback-entry'><span class='genitive-label'><br>Example:</span><br> <span class='genitive-text'>", word_row$en_example, "</span><br></div>",
+  #  "<div class='feedback-entry'><span class='example-label'><br>Example:</span><br> <span class='example-text'>", word_row$ga_example, "</span><br></div>",
     "</div>"
   ))
 }
@@ -85,8 +85,8 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
 
         conditionalPanel(
           condition = "input.rank_mode == 'single'",
-          numericInput("rank_value", "Enter value:", value = 100, min = 100, max = 7355, step = 5),
-          helpText('Enter 100 for top 100 words or 10% for top 10% of words (n=7010)', style='color: --var(accent-cream);')
+          numericInput("rank_value", "Enter value:", value = 100, min = 100, max = 7325, step = 5),
+          helpText('Enter 100 for top 100 words or 10% for top 10% of words (max=7325)', style='color: --var(accent-cream);')
         )
       ),
       tags$hr(),
@@ -149,19 +149,30 @@ server <- function(input, output, session) {
     gender_list <- gender_list[!gender_list %in% mistakes]
     gender_list <- as.character(sort(gender_list))
 
+    # part of speech categories
     pos_list <- sort(unique(na.omit(wb$part_of_speech)))
     pos_list <- as.character(pos_list)
 
+    # Add special options
+    special_pos <- c("Verbal Noun", "Irregular Verb")
+    pos_list <- sort(unique(c(pos_list, special_pos)))
+
+    #subjects
+    subjects = sort(names(table(wb$subjectField)))
+    subjects <- subjects[!subjects %in% c("4627704", "4637300")]
+
+    # names(sort(table(user_data$subjectField)))
     choices <- c(
       paste0("gender=", gender_list),
-      paste0("part_of_speech=", pos_list)
+      paste0("part_of_speech=", pos_list),
+      paste0('subjectField=', subjects)
     )
 
 
     updateSelectInput(
       session,
       inputId = "attrib",
-      label = "",
+      label = "Enter word category:",
       choices = choices
     )
   })
@@ -171,7 +182,6 @@ server <- function(input, output, session) {
     updateNumericInput(session, "rank_range_max",
                        value = input$rank_range_min + input$n_questions)
   })
-
   quiz_data <- reactive({
     req(state$word_scores)
     data <- state$word_scores
@@ -181,15 +191,26 @@ server <- function(input, output, session) {
         split_att <- strsplit(att, "=")[[1]]
         col <- split_att[1]
         val <- split_att[2]
-        data <- data[data[[col]] == val, ]
+
+        # Special logic: part_of_speech = "Verbal Noun" or "Irregular Verbs" means matching in `pos` column
+        if (col == "part_of_speech" && val == "Verbal Noun") {
+          data <- data[stringr::str_detect(data$pos, regex("verbal noun", ignore_case = TRUE)), ]
+        } else if (col == "part_of_speech" && val == "Irregular Verb") {
+          data <- data[stringr::str_detect(data$pos, regex("irregular", ignore_case = TRUE)), ]
+        } else {
+          # Default exact match in specified column
+          data <- data[data[[col]] == val, ]
+        }
       }
     }
 
     rank_mode <- input$rank_mode
     if (input$quiz_order_mode == "ordered" && rank_mode != "none") {
-      rank_limit <- switch(rank_mode,
-                           "single" = input$rank_value,
-                           "range" = c(input$rank_range_min, input$rank_range_max))
+      rank_limit <- switch(
+        rank_mode,
+        "single" = input$rank_value,
+        "range" = c(input$rank_range_min, input$rank_range_max)
+      )
       data <- filter_words(data, rank_limit = rank_limit)
     }
 
@@ -197,6 +218,7 @@ server <- function(input, output, session) {
       filter(!excluded, !is.na(ga), !is.na(en)) %>%
       distinct(ga, .keep_all = TRUE)
   })
+
 
   filtered_quiz_data <- quiz_data
 

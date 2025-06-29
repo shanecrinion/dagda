@@ -172,7 +172,7 @@ saveRDS(word_data, file='data/word_data_test.rds')
 test_data = merge(word_data$anki, word_data$frequency, by.x='ga', by.y='word_form', all.x=T)
 length(unique(test_data$lemma)) # 6848
 length(unique(test_data$ga)) # 7325
-save(test_data, file='data/test_data_extra.Rdata')
+#save(test_data, file='data/test_data_extra.Rdata')
 
 # merge
 test_data = merge(test_data, word_data$terminology, by.x='ga', by.y='ga_term', all.x=T)
@@ -183,10 +183,9 @@ dim(test_data) # 20,209
 # Extract the useful columns and order by rank
 test_data <- test_data[order(as.integer(test_data$rank)),
                        c('ga','en', 'lemma', 'rank',
-                         'pos','part_of_speech', 'gender','genitiveVN', 'gender_clean', 'en_plain', 'genitiveVN_plain', 'tooltips', 'main_term', 'Frequency', 'frequency','subjectField', 'subsetField', 'en_example')]
+                         'pos','part_of_speech', 'gender','genitiveVN', 'gender_clean', 'en_plain', 'genitiveVN_plain', 'tooltips', 'main_term', 'Frequency', 'frequency','subjectField', 'subsetField', 'ga_example')]
 
-saveRDS(test_data, file='data/test_data_extra_tearma.rds')
-rm(data)
+saveRDS(test_data, file='data/test_data.rds')
 #save(test_data, file='data/test_data_extra.Rdata')
 
 # # Get test data ready for processing
@@ -204,22 +203,6 @@ rm(data)
 # irish_terms_need_manual <- simulated.data[simulated.data$main_term=='',]
 #
 # length(unique(irish_terms_need_manual$lemma)) # 562
-#
-# # remove temporarity
-# simulated.data <- simulated.data[!simulated.data$main_term=='',]
-#
-# length(unique(simulated.data$ga)) # 6359
-# length(unique(simulated.data$lemma)) # 6416
-# length(unique(simulated.data$en)) # 6287
-#
-# dim(simulated.data) # 8751
-# dim(simulated.data[na.omit(simulated.data$main_term),]) # 8751
-#
-# simulated.data$genitiveVN <- simulated.data$genitiveVN_plain
-# simulated.data$en <- simulated.data$main_term
-# simulated.data <- subset(simulated.data, select = -c(genitiveVN_plain, main_term))
-
-
 
 ## --- Corpas (word embeddings)
 # link: https://www.corpas.ie/en/extras/word-embeddings/

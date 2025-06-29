@@ -5,28 +5,21 @@ library(rvest)
 set.seed(123)  # for reproducibility
 
 # read in user history as a slight template
-user_data <- readRDS("inst/app/user_data/word_scores_comrad.casement.rds") # read in user history
+user_data <- readRDS(system.file("user_data/word_scores_cc.rds", 'dagda')) # read in user history
 
-simulated.data =
-  data.frame(
-    ga = user_data$ga,
-    en = user_data$en, # needs parsing, maybe by html code
-    lemma = user_data$lemma,
-    rank = user_data$rank,
-    part_of_speech = user_data$part_of_speech,
-    pos = user_data$pos,
-    gender = user_data$gender,
-    genitiveVN = user_data$genitiveVN, #html parsing needed
-    seen_count = round(rnorm(n = nrow(user_data), mean = 25, sd = 5)),
-    correct_count = round(rnorm(n = nrow(user_data) , mean = 10, sd=3)),
-    excluded = as.logical(rbinom(nrow(user_data), size = 1, prob = 0.1)))
+# simulate user improving with time
+# simulate user improving with time
+simulated.data <- user_data
+simulated.data$seen_count <- pmax(round(rnorm(n = nrow(simulated.data), mean = 25, sd = 5)), 1)  # at least 1
+simulated.data$correct_count <- pmax(round(rnorm(n = nrow(simulated.data), mean = 10, sd = 3)), 0)  # at least 0
+
+simulated.data$excluded <- as.logical(rbinom(nrow(simulated.data), size = 1, prob = 0.1))
 
 # follow up calculations
-simulated.data$accuracy = simulated.data$correct_count / simulated.data$seen_count
-
+simulated.data$accuracy <- simulated.data$correct_count / simulated.data$seen_count
 # Define the range
 start_date <- as.POSIXct("2025-05-01 00:00:00", tz = "IST")
-end_date <- as.POSIXct("2025-06-22 23:59:59", tz = "IST")
+end_date <- as.POSIXct("2025-06-28 23:59:59", tz = "IST")
 
 # Generate nrow(user_data) random datetime values in the range
 random_datetimes <- as.POSIXct(runif(nrow(user_data), as.numeric(start_date), as.numeric(end_date)), origin = "1970-01-01", tz = "IST")
@@ -103,79 +96,13 @@ value_list <- as.list(values)
 # add to df
 simulated.data$skipped_count <- unlist(value_list)
 
-# Plain-text extractor (robust to nested and malformed HTML)
-strip_html <- function(x) {
-  vapply(x, function(text) {
-    xml_text(read_html(paste0("<body>", text, "</body>")))
-  }, character(1))
-}
+irish_terms_need_manual <- simulated.data[simulated.data$main_term=='',] # 0
 
-# generate plain versions
-simulated.data$en_plain <- strip_html(simulated.data$en)
-simulated.data$genitiveVN_plain <- strip_html(simulated.data$genitiveVN)
-
-# html parsing
-extract_small_notes <- function(x) {
-  sapply(x, function(text) {
-    html <- read_html(paste0("<body>", text, "</body>"))
-    smalls <- html_elements(html, "small")
-    paste(html_text(smalls), collapse = "; ")
-  })
-}
-
-# extract rough notes
-simulated.data$tooltips <- extract_small_notes(simulated.data$en)
-
-extract_main_term <- function(x) {
-  # Step 1: Remove [AUTO] entirely
-  x <- gsub("\\[AUTO\\]", "", x, ignore.case = TRUE)
-
-  # Step 2: Extract bracket contents (excluding [AUTO], already removed)
-  brackets <- regmatches(x, gregexpr("\\[[^\\]]+\\]", x))
-  brackets <- unlist(brackets)
-
-  # Keep only content from square brackets (remove brackets)
-  if (length(brackets) > 0) {
-    brackets_clean <- gsub("^\\[|\\]$", "", brackets)
-  } else {
-    brackets_clean <- character(0)
-  }
-
-  # Step 3: Extract everything before the first < or \n
-  prefix <- sub("[\n<].*", "", x)
-  prefix <- gsub("\\[.*?\\]", "", prefix)  # Remove any remaining bracketed expressions
-  prefix <- trimws(prefix)
-
-  # Step 4: Collapse result: use prefix if not empty, else fallback to cleaned bracketed values
-  if (nzchar(prefix)) {
-    return(prefix)
-  } else if (length(brackets_clean) > 0) {
-    return(trimws(paste(brackets_clean, collapse = " ")))
-  } else {
-    return("")
-  }
-}
-
-simulated.data$main_term <- vapply(simulated.data$en, extract_main_term, character(1))
-
-# words that need work - mostly alternative spelling and none of the top 760 ranked terms
-irish_terms_need_manual <- simulated.data[simulated.data$main_term=='',]
-
-length(unique(irish_terms_need_manual$lemma)) # 562
-
-# remove temporarity
 simulated.data <- simulated.data[!simulated.data$main_term=='',]
 
-length(unique(simulated.data$ga)) # 6359
-length(unique(simulated.data$lemma)) # 6416
-length(unique(simulated.data$en)) # 6287
-
-dim(simulated.data) # 8145
-dim(simulated.data[na.omit(simulated.data$main_term),]) # 8145
-
-simulated.data$genitiveVN <- simulated.data$genitiveVN_plain
-simulated.data$en <- simulated.data$main_term
-simulated.data <- subset(simulated.data, select = -c(genitiveVN_plain, main_term))
+length(unique(simulated.data$ga)) # 7325
+length(unique(simulated.data$lemma)) # 6848
+length(unique(simulated.data$main_term)) # 7010
 
 saveRDS(object = simulated.data, file = 'user_data/simdata.rds')
 
