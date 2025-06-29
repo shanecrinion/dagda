@@ -4,7 +4,7 @@ library(dagda)
 library(tibble)
 library(stringr)
 
-test_data.clean <- readRDS(system.file('data', "test_data.rds"))
+test_data.clean <- readRDS(system.file("user_data/word_scores_comrad.casement.rds", 'dagda'))
 
 generate_feedback_html <- function(word_row, correct = FALSE) {
   icon <- if (correct) "🎈" else "💀"
