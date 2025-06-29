@@ -9,17 +9,6 @@
     ]
   },
   "Packages": {
-    "PKI": {
-      "Package": "PKI",
-      "Version": "0.1-14",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "base64enc"
-      ],
-      "Hash": "f5b9c6b2f62f1fa3dd53fd1ddccbb241"
-    },
     "R6": {
       "Package": "R6",
       "Version": "2.5.1",
@@ -112,50 +101,15 @@
       "Repository": "CRAN",
       "Hash": "5d8225445acb167abf7797de48b2ee3c"
     },
-    "crayon": {
-      "Package": "crayon",
-      "Version": "1.5.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "grDevices",
-        "methods",
-        "utils"
-      ],
-      "Hash": "859d96e65ef198fd43e82b9628d593ef"
-    },
     "curl": {
       "Package": "curl",
-      "Version": "5.2.1",
+      "Version": "6.4.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "411ca2c03b1ce5f548345d2fc2685f7a"
-    },
-    "dagda": {
-      "Package": "dagda",
-      "Version": "0.0.0.9000",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "shanecrinion",
-      "RemoteRepo": "dagda",
-      "RemoteRef": "main",
-      "RemoteSha": "7fa2cb7d6383b3b58d7ec0610efb2f23a53254ea",
-      "Remotes": "shanecrinion/dagda",
-      "Requirements": [
-        "R",
-        "cli",
-        "dplyr",
-        "here",
-        "rvest",
-        "shiny",
-        "tibble",
-        "xml2"
-      ],
-      "Hash": "31eef43b8cc5d3e2c3656e285eae5d95"
+      "Hash": "a331a41f5a999c2b59fdff9f48ac579f"
     },
     "digest": {
       "Package": "digest",
@@ -396,18 +350,6 @@
       ],
       "Hash": "2bcca3848e4734eb3b16103bc9aa4b8e"
     },
-    "packrat": {
-      "Package": "packrat",
-      "Version": "0.9.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "tools",
-        "utils"
-      ],
-      "Hash": "55ddd2d4a1959535f18393478b0c14a6"
-    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.9.0",
@@ -492,36 +434,6 @@
       ],
       "Hash": "4c8415e0ec1e29f3f4f6fc108bef0144"
     },
-    "rsconnect": {
-      "Package": "rsconnect",
-      "Version": "1.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "PKI",
-        "R",
-        "cli",
-        "curl",
-        "digest",
-        "jsonlite",
-        "lifecycle",
-        "openssl",
-        "packrat",
-        "renv",
-        "rlang",
-        "rstudioapi",
-        "tools",
-        "yaml"
-      ],
-      "Hash": "90dc9ac04cec50f25657b077d4aaca57"
-    },
-    "rstudioapi": {
-      "Package": "rstudioapi",
-      "Version": "0.16.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "96710351d642b70e8f02ddeb237c46a7"
-    },
     "rvest": {
       "Package": "rvest",
       "Version": "1.0.4",
@@ -570,7 +482,7 @@
     },
     "shiny": {
       "Package": "shiny",
-      "Version": "1.10.0",
+      "Version": "1.11.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -578,8 +490,8 @@
         "R6",
         "bslib",
         "cachem",
+        "cli",
         "commonmark",
-        "crayon",
         "fastmap",
         "fontawesome",
         "glue",
@@ -599,7 +511,7 @@
         "withr",
         "xtable"
       ],
-      "Hash": "4b4477baa9a939c5577e5ddb4bf01f28"
+      "Hash": "011db3556755012e632ed99d083d7d75"
     },
     "sourcetools": {
       "Package": "sourcetools",
@@ -709,7 +621,7 @@
     },
     "withr": {
       "Package": "withr",
-      "Version": "3.0.0",
+      "Version": "3.0.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -717,11 +629,11 @@
         "grDevices",
         "graphics"
       ],
-      "Hash": "d31b6c62c10dcf11ec530ca6b0dd5d35"
+      "Hash": "cc2d62c76458d425210d1eb1478b30b4"
     },
     "xml2": {
       "Package": "xml2",
-      "Version": "1.3.6",
+      "Version": "1.3.8",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -730,7 +642,7 @@
         "methods",
         "rlang"
       ],
-      "Hash": "1d0336142f4cd25d8d23cd3ba7a8fb61"
+      "Hash": "f5130b2f3d461964bac93cc618013231"
     },
     "xtable": {
       "Package": "xtable",
@@ -743,13 +655,6 @@
         "utils"
       ],
       "Hash": "b8acdf8af494d9ec19ccb2481a9b11c2"
-    },
-    "yaml": {
-      "Package": "yaml",
-      "Version": "2.3.8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "29240487a071f535f5e5d5a323b7afbd"
     }
   }
 }
