@@ -50,20 +50,25 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
       class = "custom-sidebar",
       width = 3,
       fluidRow(class = "user-row",
-        column(8, textInput("username", "", value = "comrad.casement")),
+        column(8, textInput("username", "Username:", value = "comrad.casement")),
         column(4,
-               tags$div(style = "color: var(--accent-blue); margin-top: 22px;font-family: urgc; font-size: 16px; padding 2px;",
+               tags$div(style = "color: var(--sky-deep); margin-top: 50px;font-family: urgc; font-size: 16px; font-style: bold; padding 0px;",
                         actionButton("save_user", "Enter")))
       ),
       tags$small(
-        style = "text-align: center; padding: 5px; margin: 5px; font-family: 'Fira Code', monospace; color: var(--accent-cream); font-size: 12px;",
+        style = "text-align: center; padding: 0px; margin: 0px; font-family: 'Fira Code', monospace; color: var(--lichen); font-size: 12px;",
         "Type username or press Enter for example"
       ),
+      numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
+      selectInput(
+        inputId = "attrib",
+        label = "Select for a focused quiz:",
+        choices = NULL,
+        multiple = TRUE),
       # fluidRow(
       #   column(3, textInput("username", "", value = "comrad.casement")),
       #   column(1, actionButton("save_user", "Enter", style = "font-family: urgc; font-size: 16px; padding: 1px;"))),
 
-      tags$hr(),
       #class='questions',
       #          column(7,
                       radioButtons("quiz_order_mode", "Order:",
@@ -90,18 +95,6 @@ generate_feedback_html <- function(word_row, correct = FALSE) {
           helpText('Enter 100 for top 100 words or 10% for top 10% of words (max=7325)', style='color: --var(accent-cream);')
         )
       ),
-      tags$hr(),
-      numericInput("n_questions", "Questions:", value = 10, min = 5, step = 5),
-      checkboxInput("enable_attrib_filter", label = tags$span("Focused Quiz?", class = "form-label"), value = FALSE),
-      conditionalPanel(
-        condition = "input.enable_attrib_filter",
-        selectInput(
-          inputId = "attrib",
-          label = "Select for a focused quiz:",
-          choices = NULL,
-          multiple = TRUE)),
-
-      tags$hr(),
       actionButton("start_quiz", "Start Quiz", class = "btn-primary"),
      # verbatimTextOutput("quiz_status")
     ),
@@ -175,7 +168,7 @@ server <- function(input, output, session) {
     updateSelectInput(
       session,
       inputId = "attrib",
-      label = "Enter word category:",
+      label = "Categories:",
       choices = choices
     )
   })
@@ -436,14 +429,9 @@ server <- function(input, output, session) {
 
       if (!is.null(quiz$last_quiz_words)) {
         buttons_list <- c(buttons_list,
-                          fluidRow(
-                            column(6,
-                                   actionButton("repeat_same_words", "🔁 Same Words Again?", class = "btn btn-primary btn-block",
-                                                disabled = is.null(quiz$last_quiz_words))
-                            ),
-                            column(6, actionButton("repeat_same_words", "Repeat Same Quiz"))
-                          )
-        )
+                          actionButton("repeat_same_words", "🔁 Same Words Again?",
+                                       class = "btn btn-primary btn-block",
+                                       disabled = is.null(quiz$last_quiz_words)))
       }
 
       if (input$rank_mode == "range" && input$quiz_order_mode != "random") {

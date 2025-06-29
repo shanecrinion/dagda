@@ -20,11 +20,23 @@
   --font-size: 16px;              /* Base font size */
   --border-radius: 0;             /* Sharp corners */
   --heading-size: 2rem;
+  --sky: #3f71ac;
+  --sky-deep: #2b5584;
+  --grass: #84884b;
+  --grass-b: #718b36;
+  --stone: #9b9b9b;
+  --sand: #dddbcd;
+  --sand-b: #e6e2c7;
+  --sea: #438099;
+  --lichen: #b3995e;
+  --clouds: #dce5f4;
 }
 
 input[type="number"] {
   font-family: 'Fira Code', monospace;
-  max-width: 90%;
+  width: 90%;
+  margin-right: 10px;
+  padding: 5px;
   text-align: center;
   display: block;          /* Makes margin auto work
   margin: 0 auto;          /* Centers horizontally */
@@ -32,7 +44,7 @@ input[type="number"] {
 
 
 .user-row {
-  background-color: var(--accent-cream);
+  background-color: var(--sea);
   margin-top; 15;
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -44,17 +56,22 @@ input[type="number"] {
 
 /* Buttons */
 .btn {
-  background-color: var(--main-color-light);
-  border-color: var(--main-color);
+  background-color: var(--lichen);
+  border-color: var(--lichen);
+  font-size: 16px;
+  font-weight: normal;
   color: var(--accent-cream);
-  font-size: 2rem;
+  font-weight: normal;
 }
 
 .btn:hover,
 .btn:focus {
-  background-color: var(--main-color-light);
-  border-color: var(--main-color);
+  background-color: var(--lichen);
+  border-color: var(--lichen);
+  font-size: 16px;
+  font-weight: normal;
   color: var(--accent-cream);
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 
@@ -66,7 +83,6 @@ input[type="number"] {
 
 /* Align question & feedback UI */
 #feedback_ui {
-  padding: 5px;
   border-left: 0px;
   border-right: 0px;
   background-color: #fdf9f3;
@@ -80,7 +96,7 @@ input[type="number"] {
   padding-left: 10px;
   box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
   background-color: var(--main-colour-light);
-  color: var(--accent-blue);
+  color: var(--sand);
 }
 
 
@@ -88,7 +104,7 @@ input[type="number"] {
 /* Headers */
 h1 {
   font-size: 100px;
-  color: var(--accent-cream);
+  color: var(--sea);
   font-family: 'urgc', 'Segoe UI', sans-serif;
 }
 
@@ -103,7 +119,7 @@ h2 {
   margin-left: 0px;
   padding-bottom: 30px;
   margin-right: 0px;
-  background-color: var(--accent-blue);
+  background-color: var(--sky-deep);
 }
 
 h3, h4 {
@@ -134,10 +150,10 @@ input[type="text"]:focus,
 select:focus,
 textarea:focus,
 .form-control:focus {
-  border-color: var(--accent-blue);
+  border-color: var(--grass-b);
+  background-color: var(--sand);
   font-family: var(--font-code);
-  color: var(--main-color);
-  box-shadow: 0 0 5px var(--accent-main);
+  color: var(--accent-cream);
   text-align: left;
   border-radius: 0px;
 }
@@ -177,7 +193,7 @@ a:hover {
 .feedback-container {
   margin-top: 0px;
   border-left: 0px solid ;
-  background-color: #f4f0f5;
+  background-color: var(--accent-cream);
   border-radius: 0;
   padding: 0px;
   border-right: 0px;
@@ -196,7 +212,7 @@ a:hover {
 .questions {
   text-align: left;
   margin-top: 0px;
-  background-color: var(--accent-blue)
+  background-color: var(--sea);
 }
 
 
@@ -209,48 +225,50 @@ a:hover {
 
 /* === Custom Sidebar Panel Styling === */
 .custom-sidebar {
-  background-color: var(--accent-blue);
+  background-color: var(--sand);
   border-radius: 0;
   padding: 5px;
   margin-left: 10px;
   border-top: 0px;
+  border-color: var(--lichen);
   border-right: 1px solid var(--main-color);
-  border-left: 5px solid var(--accent-blue);
+  border-left: 5px solid var(--sky-deep);
   border-bottom: 0px;
   border-top: 0px;
-  min-height: 70vh; /* Optional: makes it full-height */
+  min-height: 100vh; /* Optional: makes it full-height */
   font-family: var(--font-code);
-  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  box-shadow: 0 12px 16px 0 --var(grass), 0 17px 16px 0 --var(grass-b);
 }
 
-
+/*Changed questions and word category */
 .custom-sidebar label,
 .custom-sidebar .form-group {
   margin-bottom: 0.5rem;
-  background-color: var(--accent-blue);
-
+  margin-top: 0px;
+  background-color: var(--sand);
 }
 
 .custom-sidebar input,
 .custom-sidebar select,
 .custom-sidebar .form-control {
 
-  background-color: var(--accent-cream);
-  color: var(--accent-blue);
+  background-color: var(--clouds);
+  border-color var(--lichen);
+  color: var(--grass-b);
+  border: 2px;
   font-family: 'Fira Code', monospace;
-  font-size: 16px;
+  font-size: 12px;
   text-align: left;
-  padding: 2px 0px;
   margin-top: 0px;
   border-radius: 1px;
-  margin-left: 5px;
+  margin-left: 10px;
   width: 90%;
 }
 
 
 .custom-sidebar label {
   font-size: 16px;
-  color: var(--accent-cream);
+  color: var(--sea);
   font-family: var(--font-family);
   margin-top: 10px;
   margin-bottom: 5px;
@@ -260,19 +278,18 @@ a:hover {
 
 
 .custom-sidebar hr {
-  border-top: 2px solid var(--accent-cream);
-  margin-top: 5px;
+  border-top: 2px solid var(--grass-b);
+  margin-top: 10px;
   margin-bottom: 5px;
 }
 
 
 .custom-sidebar .radio label {
   display: flex;
-  align-items: right;
-  margin-left: 5px;
+  margin-left: 15px;
   width: 100%;
   font-family: 'Fira Code', monospace;
-  color: var(--accent-cream);
+  color: var(--grass-b);
   font-size: 16px;
   padding-right: 0px;
   padding: 0px;
@@ -281,7 +298,7 @@ a:hover {
 
 .custom-sidebar .checkbox label {
   font-family: var(--font-family);
-  color: var(--accent-cream);
+  color: var(--grass);
   font-weight: normal;
   font-size: 16px;
   margin-top:16px;
@@ -289,8 +306,8 @@ a:hover {
 }
 
 .custom-sidebar .control-label {
-  font-family: 'urgc', 'Segoe UI', sans-serif;
-  color: var(--accent-cream);
+  font-family: var(--font-code);
+  color: var(--grass-b);
   font-weight: normal;
   font-size: 20px;
   margin-left: 5px;
@@ -299,7 +316,7 @@ a:hover {
 
 .custom-sidebar h2 {
   font-size: 80px;
-  color: var(--accent-blue);
+  color: var(--sky-deep);
   font-family: 'urgc', 'Segoe UI', sans-serif;
   margin-left: 5px;
   border-radius: 0px;
@@ -380,20 +397,20 @@ a:hover {
   overflow-x: hidden;
 }
 .user-row {
-  background-color: var(--accent-blue);
-  text-align: center;
-  margin-left: 5px;
+  background-color: var(--green-b);
+  text-align: left;
+  margin: 0px;
 }
 
 .ranker {
-  background-color: var(--accent-blue);
+  background-color: var(--sand);
   font-family: 'Fira Code', monospace;
 }
 
 .feedback-header{
   font-size: 2rem;
   text-align: center;
-  color: var(--accent-blue);
+  color: var(--sky-deep);
   font-family: var(--font-code);
 }
 
@@ -413,8 +430,10 @@ a:hover {
 
 
 .btn-primary{
-  padding: 2px;
-  margin-left: 10px;
+  padding: 5px;
+  margin-left: 5px;
+  margin-top: 10px;
+  font-size: 16px;
   text-align: center;
   margin 0 auto;
 }
@@ -443,27 +462,35 @@ html, body {
 
 
 .selectize-input {
-  width: 90%;
   align-items: center;
   align-content: center;
+  background-color: var(--clouds);
+  color: var(--accent-cream);
   text-align: left;
+  margin-right: 10px;
+  width: 90%;
   border-radius: 0px;
-  padding:2px;
+  padding: 5px;
   }
 
 
 .help-block {
   font-size: 14px;
-  color: var(--accent-cream);
+  color: var(--lichen);
   font-style: italic;
   margin-bottom: 10px;
 }
 
 .selectize-control {
-  margin-left: 15px;
+  margin-left: 10px;
   align-content: center;
 }
 
 #quiz_order_mode + .shiny-options-group{
-  margin-left: 20px;
+  margin-left: 10px;
+}
+
+#attrib {
+  margin-left: 10px;
+  margin-right: 10px;
 }
