@@ -4,7 +4,8 @@ library(dagda)
 library(tibble)
 library(stringr)
 
-test_data.clean <- readRDS(system.file("user_data", "word_scores_comrad.casement.rds", package = "dagda"))
+#test_data.clean <- readRDS(system.file("user_data", "word_scores_comrad.casement.rds", package = "dagda"))
+test_data.clean <- readRDS('user_data/word_scores_comrad.casement.rds')
 
 generate_feedback_html <- function(word_row, correct = FALSE) {
   icon <- if (correct) "🎈" else "💀"
@@ -127,7 +128,9 @@ server <- function(input, output, session) {
     complete = FALSE,
     last_quiz_words = NULL)
 
+  message('about to load data..')
   wordbank <- reactiveVal(test_data.clean)
+  message('data loaded succesfully..')
 
   observeEvent(input$save_user, {
     req(input$username)
