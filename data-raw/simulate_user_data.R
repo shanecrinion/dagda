@@ -104,5 +104,5 @@ length(unique(simulated.data$ga)) # 7325
 length(unique(simulated.data$lemma)) # 6848
 length(unique(simulated.data$main_term)) # 7010
 
-saveRDS(object = simulated.data, file = 'user_data/simdata.rds')
+#saveRDS(object = simulated.data, file = 'user_data/simdata.rds')
 
