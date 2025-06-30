@@ -35,6 +35,7 @@
 input[type="number"] {
   font-family: 'Fira Code', monospace;
   width: 90%;
+  font-weight: bold;
   margin-right: 10px;
   padding: 5px;
   text-align: center;
@@ -43,16 +44,18 @@ input[type="number"] {
 }
 
 
+.row {
+  background-color: var(--accent-cream); }
+
 .user-row {
-  background-color: var(--sea);
   margin-top; 15;
   margin-left: 0 !important;
   margin-right: 0 !important;
-  padding-left: 15;
+  padding-left: 0;
   padding-right: 0;
+  text-align: left;
+  background-color: var(--sand)
 }
-.row {
-  background-color: var(--accent-cream); }
 
 /* Buttons */
 .btn {
@@ -60,7 +63,7 @@ input[type="number"] {
   border-color: var(--lichen);
   font-size: 16px;
   font-weight: normal;
-  color: var(--accent-cream);
+  color: var(--sand);
   font-weight: normal;
 }
 
@@ -70,13 +73,12 @@ input[type="number"] {
   border-color: var(--lichen);
   font-size: 16px;
   font-weight: normal;
-  color: var(--accent-cream);
+  color: var(--grass);
   box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 
 #question_ui {
-  padding: 5px;
   background-color: #f4f0f5;
   border-radius: 0px;
 }
@@ -85,7 +87,7 @@ input[type="number"] {
 #feedback_ui {
   border-left: 0px;
   border-right: 0px;
-  background-color: #fdf9f3;
+  background-color: #f4f0f5;
   color: #7a6248;
   border-radius: 0px;
 }
@@ -95,10 +97,9 @@ input[type="number"] {
 .mainPanel {
   padding-left: 10px;
   box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-  background-color: var(--main-colour-light);
-  color: var(--sand);
+  background-color: #f4f0f5;
+  color: var(--accent-cream);
 }
-
 
 
 /* Headers */
@@ -150,12 +151,14 @@ input[type="text"]:focus,
 select:focus,
 textarea:focus,
 .form-control:focus {
-  border-color: var(--grass-b);
-  background-color: var(--sand);
+  border-color: var(--grass);
+  background-color: var(--grass-b);
   font-family: var(--font-code);
   color: var(--accent-cream);
+  font-weight: bold;
   text-align: left;
   border-radius: 0px;
+  width: flex;
 }
 
 
@@ -172,12 +175,12 @@ textarea:focus,
 .checkbox input[type="checkbox"]:checked + label::before,
 .radio input[type="radio"]:checked + label::before {
   display: flex;
-  background-color: var(--main-color);
+  background-color: var(--grass);
   margin-left: 15px;
   margin-top: 5px;
   margin-right: 5px;
   padding: 2px;
-  border-color: var(--main-color);
+  border-color: var(--grass-b);
   transform: scale(0.8);
 }
 
@@ -202,15 +205,29 @@ a:hover {
 
 
 
+.form-control:focus {
+  border-color: var(--grass);
+  background-color: var(--grass-b);
+  font-family: var(--font-code);
+  color: var(--accent-cream);
+  font-weight: bold;
+  text-align: left;
+  border-radius: 0px;
+  width: flex;
+}
+
 /* Font sizing */
 .feedback-container, .form-control, .btn {
   font-size: 12px;
+
   font-family: var(--font-code);
   border-radius: 0;
 }
 
 .questions {
   text-align: left;
+  margin-left: 10px;
+  margin-right: 10px;
   margin-top: 0px;
   background-color: var(--sea);
 }
@@ -252,22 +269,23 @@ a:hover {
 .custom-sidebar select,
 .custom-sidebar .form-control {
 
-  background-color: var(--clouds);
-  border-color var(--lichen);
-  color: var(--grass-b);
-  border: 2px;
+  background-color: var(--grass);
+  border-color: var(--grass-b);
+  color: var(--sand);
   font-family: 'Fira Code', monospace;
   font-size: 12px;
+  font-style: bold;
   text-align: left;
   margin-top: 0px;
-  border-radius: 1px;
+  margin-bottom: 0px;
+  border-radius: 0px;
   margin-left: 10px;
   width: 90%;
 }
 
 
 .custom-sidebar label {
-  font-size: 16px;
+  font-size: 2rem;
   color: var(--sea);
   font-family: var(--font-family);
   margin-top: 10px;
@@ -286,23 +304,26 @@ a:hover {
 
 .custom-sidebar .radio label {
   display: flex;
+  align-items: baseline;
   margin-left: 15px;
   width: 100%;
   font-family: 'Fira Code', monospace;
   color: var(--grass-b);
-  font-size: 16px;
+  font-size: 2rem;
   padding-right: 0px;
   padding: 0px;
 }
 
 
 .custom-sidebar .checkbox label {
-  font-family: var(--font-family);
+  font-family: var(--font-code);
   color: var(--grass);
   font-weight: normal;
-  font-size: 16px;
-  margin-top:16px;
-  text-align: left;
+  font-size: 1.5rem;
+  margin-top: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .custom-sidebar .control-label {
@@ -396,11 +417,6 @@ a:hover {
 .custom-sidebar {
   overflow-x: hidden;
 }
-.user-row {
-  background-color: var(--green-b);
-  text-align: left;
-  margin: 0px;
-}
 
 .ranker {
   background-color: var(--sand);
@@ -464,27 +480,27 @@ html, body {
 .selectize-input {
   align-items: center;
   align-content: center;
-  background-color: var(--clouds);
-  color: var(--accent-cream);
+  border-color: var(--grass-b);
+  background-color: var(--grass);
+  color: var(--sand);
   text-align: left;
   margin-right: 10px;
+  margin-left:10px ;
   width: 90%;
   border-radius: 0px;
-  padding: 5px;
+  padding: 0px;
   }
 
 
 .help-block {
   font-size: 14px;
   color: var(--lichen);
+  margin-left: 5px;
   font-style: italic;
   margin-bottom: 10px;
 }
 
-.selectize-control {
-  margin-left: 10px;
-  align-content: center;
-}
+
 
 #quiz_order_mode + .shiny-options-group{
   margin-left: 10px;
@@ -493,4 +509,28 @@ html, body {
 #attrib {
   margin-left: 10px;
   margin-right: 10px;
+}
+
+
+/* Default appearance before interaction */
+#user_answer {
+  background-color: #fdf6ff;
+  border: 2px solid var(--grass);
+  color: #4a2e4a;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Placeholder styling */
+#user_answer::placeholder {
+  color: --var(lichen);
+  font-style: italic;
+}
+
+/* On focus (when clicked into) */
+#user_answer:focus {
+  border-color: var(--sea);
+  background-color: #fff0f8;
+  outline: none;
 }
